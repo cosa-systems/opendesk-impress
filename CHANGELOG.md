@@ -1,3 +1,10 @@
+# 1.0.0 (2025-07-07)
+
+
+### Features
+
+* Initial commit ([d0adb5e](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/d0adb5ec0600a56becad7d8f8bcbaa06a59098e1))
+
 # 1.0.0 (2025-06-26)
 
 

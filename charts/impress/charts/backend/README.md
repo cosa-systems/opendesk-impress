@@ -35,7 +35,7 @@ helm install my-release --version 1.0.0 opendesk-impress/backend
 | additionalAnnotations | object | `{}` | Additional custom annotations to add to all deployed objects. |
 | additionalLabels | object | `{}` | Additional custom labels to add to all deployed objects. |
 | affinity | object | `{}` | Affinity for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity Note: podAffinityPreset, podAntiAffinityPreset, and nodeAffinityPreset will be ignored when it's set. |
-| cleanup.deletePodsOnSuccess | bool | `false` |  |
+| cleanup.deletePodsOnSuccess | bool | `false` | Whether to delete successfully run pods (e.g. jobs) |
 | configuration.ai.allowReachFrom | string | `""` | Allow AI requests from public, authenticated or restricted |
 | configuration.ai.apiKey.existingSecret.key | string | `"aiApiKey"` | Key where AI API Key is stored |
 | configuration.ai.apiKey.existingSecret.name | string | `nil` | Name of existing secret containing AI API key, overrules provided value |
@@ -68,10 +68,10 @@ helm install my-release --version 1.0.0 opendesk-impress/backend
 | configuration.django.allowedHosts | string | `"*"` | List of strings representing the host/domain names that this Django site can serve |
 | configuration.django.configuration | string | `"Production"` | Django configuration |
 | configuration.django.csrfTrustedOrigins | string | `""` | List of trusted origins for unsafe requests (e.g. POST) |
-| configuration.django.secretKey.existingSecret.key | string | `"djangoSecretKey"` |  |
-| configuration.django.secretKey.existingSecret.name | string | `nil` |  |
+| configuration.django.secretKey.existingSecret.key | string | `"djangoSecretKey"` | Key where Django secret key is stored |
+| configuration.django.secretKey.existingSecret.name | string | `nil` | Name of existing secret containing Django secret key, overrules provided value |
 | configuration.django.secretKey.value | string | `""` | Value of Django secret key |
-| configuration.django.settingsModule | string | `"impress.settings"` |  |
+| configuration.django.settingsModule | string | `"impress.settings"` | Django settings module |
 | configuration.django.siteDomain | string | `""` | Domain of this site, will default to global.fqdn |
 | configuration.django.siteName | string | `""` | Name of this site |
 | configuration.django.superuserEmail.existingSecret.key | string | `"djangoSuperuserEmail"` | Key where superuser email is stored |
@@ -80,7 +80,7 @@ helm install my-release --version 1.0.0 opendesk-impress/backend
 | configuration.django.superuserPassword.existingSecret.key | string | `"djangoSuperuserPassword"` | Key where superuser password is stored |
 | configuration.django.superuserPassword.existingSecret.name | string | `nil` | Name of existing key containing superuser password, overrules provided value |
 | configuration.django.superuserPassword.value | string | `""` | Superuser password |
-| configuration.documentImageMaxSize | string | `"10485760"` | Max size of images in bytes |
+| configuration.documentImageMaxSize | string | `nil` | Max size of images in bytes |
 | configuration.email.brandName | string | `""` | Email brand name |
 | configuration.email.from | string | `""` | From address |
 | configuration.email.host | string | `"postfix"` | SMTP relay server |
@@ -106,10 +106,9 @@ helm install my-release --version 1.0.0 opendesk-impress/backend
 | configuration.oidc.authRequestExtraParams | string | `"{}"` | Auth Request extra parameters |
 | configuration.oidc.createUser | string | `"True"` | Whether to create User |
 | configuration.oidc.enabled | bool | `false` | Whether to enable OIDC |
-| configuration.oidc.essentialClaims | string | `"email"` | essential claims |
+| configuration.oidc.essentialClaims | string | `"email"` | Essential claims |
 | configuration.oidc.fallbackToEmailForIdentification | string | `"True"` | Fallback to email for identification |
-| configuration.oidc.fieldToShortname | string | `"first_name"` | Field to short name |
-| configuration.oidc.fieldsToFullname | string | `"first_name last_name"` | Fields to full name |
+| configuration.oidc.fullnameFields | string | `"first_name last_name"` | Fields to full name |
 | configuration.oidc.loginRedirectUrl | string | `""` | Redirect URL after login |
 | configuration.oidc.loginRedirectUrlFailure | string | `""` | Redirect URL on failure |
 | configuration.oidc.logoutRedirectUrl | string | `""` | Redirect URL after logout |
@@ -126,8 +125,9 @@ helm install my-release --version 1.0.0 opendesk-impress/backend
 | configuration.oidc.rpClientSecret.existingSecret.key | string | `"oidcRpClientSecret"` | Key where client secret is stored |
 | configuration.oidc.rpClientSecret.existingSecret.name | string | `nil` | Name of existing secret containing client secret, overrules provided value |
 | configuration.oidc.rpClientSecret.value | string | `""` | Relying Party client secret |
-| configuration.oidc.rpScopes | string | `"openid email"` |  |
+| configuration.oidc.rpScopes | string | `"openid email"` | Relying Party scopes |
 | configuration.oidc.rpSignAlgo | string | `"RS256"` | Relying Party signature algorithm, default `RS256` |
+| configuration.oidc.shortnameField | string | `"first_name"` | Field to short name |
 | configuration.oidc.storeIDToken | string | `"True"` | Whether to store ID token |
 | configuration.oidc.useNonce | string | `"True"` | Use Nonce |
 | configuration.redisUrl.existingSecret.key | string | `"redisUrl"` | Key where Redis URL is stored |
@@ -138,6 +138,7 @@ helm install my-release --version 1.0.0 opendesk-impress/backend
 | containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Enable container privileged escalation. |
 | containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Security capabilities for container. |
 | containerSecurityContext.enabled | bool | `true` | Enable security context. |
+| containerSecurityContext.privileged | bool | `false` | Run container in privileged mode |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container's root filesystem as read-only. |
 | containerSecurityContext.runAsGroup | int | `1001` | Process group id. |
 | containerSecurityContext.runAsNonRoot | bool | `true` | Run container as a user. |
@@ -189,6 +190,10 @@ helm install my-release --version 1.0.0 opendesk-impress/backend
 | livenessProbe.timeoutSeconds | int | `5` | Timeout for command return. |
 | nameOverride | string | `""` | String to partially override release name. |
 | nodeSelector | object | `{}` | Node labels for pod assignment. Ref: https://kubernetes.io/docs/user-guide/node-selection/ |
+| pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Pod disruption budget Ref.: https://kubernetes.io/docs/tasks/run-application/configure-pdb/ |
+| pdb.enabled | bool | `true` | Whether PodDisruptionBudget for the backend should be enabled |
+| pdb.maxUnavailable | string | `nil` | How many pods can be unavailable at any given time |
+| pdb.minAvailable | int | `1` | How many pods need to be available at any given time |
 | podAnnotations | object | `{}` | Pod Annotations. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | podAnnotationsCreateUser | object | `{}` | Pod Annotations for Create User Job. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | podAnnotationsMigrate | object | `{}` | Pod Annotations for Migrate Job. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
@@ -211,7 +216,7 @@ helm install my-release --version 1.0.0 opendesk-impress/backend
 | service.enabled | bool | `true` | Enable kubernetes service creation. |
 | service.ports.http.containerPort | int | `8000` | Internal port. |
 | service.ports.http.port | int | `80` | Accessible port. |
-| service.ports.http.protocol | string | `"TCP"` | service protocol. |
+| service.ports.http.protocol | string | `"TCP"` | Service protocol. |
 | service.type | string | `"ClusterIP"` | Choose the kind of Service, one of "ClusterIP", "NodePort" or "LoadBalancer". |
 | serviceAccount.annotations | object | `{}` | Additional custom annotations for the ServiceAccount. |
 | serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |

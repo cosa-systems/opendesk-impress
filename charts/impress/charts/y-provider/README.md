@@ -40,7 +40,7 @@ helm install my-release --version 1.0.0 opendesk-impress/y-provider
 | containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Enable container privileged escalation. |
 | containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Security capabilities for container. |
 | containerSecurityContext.enabled | bool | `true` | Enable security context. |
-| containerSecurityContext.privileged | bool | `false` |  |
+| containerSecurityContext.privileged | bool | `false` | Run container in privileged mode |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container's root filesystem as read-only. |
 | containerSecurityContext.runAsGroup | int | `1001` | Process group id. |
 | containerSecurityContext.runAsNonRoot | bool | `true` | Run container as a user. |
@@ -94,34 +94,15 @@ helm install my-release --version 1.0.0 opendesk-impress/y-provider
 | livenessProbe.timeoutSeconds | int | `1` | Timeout for command return. |
 | nameOverride | string | `""` | String to partially override release name. |
 | nodeSelector | object | `{}` | Node labels for pod assignment. Ref: https://kubernetes.io/docs/user-guide/node-selection/ |
-| persistence.accessModes | list | `["ReadWriteOnce"]` | The volume access modes, some of "ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany", "ReadWriteOncePod".  "ReadWriteOnce" => The volume can be mounted as read-write by a single node. ReadWriteOnce access mode still can                    allow multiple pods to access the volume when the pods are running on the same node. "ReadOnlyMany" => The volume can be mounted as read-only by many nodes. "ReadWriteMany" => The volume can be mounted as read-write by many nodes. "ReadWriteOncePod" => The volume can be mounted as read-write by a single Pod. Use ReadWriteOncePod access mode if                       you want to ensure that only one pod across whole cluster can read that PVC or write to it.  |
-| persistence.annotations | object | `{}` | Annotations for the PVC. |
-| persistence.dataSource | object | `{}` | Custom PVC data source. |
-| persistence.enabled | bool | `true` | Enable data persistence (true) or use temporary storage (false). |
-| persistence.existingClaim | string | `""` | Use an already existing claim. |
-| persistence.labels | object | `{}` | Labels for the PVC. |
-| persistence.selector | object | `{}` | Selector to match an existing Persistent Volume (this value is evaluated as a template).  selector:   matchLabels:     app: my-app  |
-| persistence.size | string | `"1Gi"` | The volume size with unit. |
-| persistence.storageClass | string | `""` | The (storage) class of PV. |
+| pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Pod disruption budget Ref.: https://kubernetes.io/docs/tasks/run-application/configure-pdb/ |
+| pdb.enabled | bool | `true` | Whether PodDisruptionBudget for the Y-Provider should be enabled |
+| pdb.maxUnavailable | string | `nil` | How many pods can be unavailable at any given time |
+| pdb.minAvailable | int | `1` | How many pods need to be available at any given time |
 | podAnnotations | object | `{}` | Pod Annotations. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | podLabels | object | `{}` | Pod Labels. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
 | podSecurityContext.enabled | bool | `true` | Enable security context. |
 | podSecurityContext.fsGroup | int | `1001` | If specified, all processes of the container are also part of the supplementary group. |
 | podSecurityContext.fsGroupChangePolicy | string | `"Always"` | Change ownership and permission of the volume before being exposed inside a Pod. |
-| prometheus.prometheusRule.enabled | bool | `false` | Enable Prometheus PrometheusRule. This requires "monitoring.coreos.com" CRD. |
-| prometheus.prometheusRule.groups | list | `[]` | Groups, containing the alert rules. |
-| prometheus.prometheusRule.labels | object | `{}` | Additional labels for PrometheusRule resource. |
-| prometheus.prometheusRule.namespace | string | `""` | Namespace where to deploy serviceMonitor resource to. |
-| prometheus.serviceMonitor.enabled | bool | `false` | Enable Prometheus ServiceMonitor. This requires "monitoring.coreos.com" CRD. |
-| prometheus.serviceMonitor.honorLabels | bool | `false` | honorLabels chooses the metrics labels on collisions with target labels. |
-| prometheus.serviceMonitor.interval | string | `"30s"` | Interval at which metrics should be scraped. |
-| prometheus.serviceMonitor.jobLabel | string | `""` | The name of the label on the target service to use as the job name in prometheus. |
-| prometheus.serviceMonitor.labels | object | `{}` | Additional labels for ServiceMonitor resource. |
-| prometheus.serviceMonitor.metricRelabelings | list | `[]` | MetricRelabelConfigs to apply to samples before ingestion. |
-| prometheus.serviceMonitor.namespace | string | `""` | Namespace where to deploy serviceMonitor resource to. |
-| prometheus.serviceMonitor.path | string | `"/metrics"` | Metrics service HTTP path. |
-| prometheus.serviceMonitor.relabelings | list | `[]` | RelabelConfigs to apply to samples before scraping. |
-| prometheus.serviceMonitor.scrapeTimeout | string | `"30s"` | Specify the timeout after which the scrape is ended. |
 | readinessProbe.enabled | bool | `true` | Enables kubernetes ReadinessProbe. |
 | readinessProbe.failureThreshold | int | `10` | Number of failed executions until container is terminated. |
 | readinessProbe.initialDelaySeconds | int | `15` | Delay after container start until ReadinessProbe is executed. |
@@ -137,7 +118,7 @@ helm install my-release --version 1.0.0 opendesk-impress/y-provider
 | service.enabled | bool | `true` | Enable kubernetes service creation. |
 | service.ports.http.containerPort | int | `4444` | Internal port. |
 | service.ports.http.port | int | `443` | Accessible port. |
-| service.ports.http.protocol | string | `"TCP"` | service protocol. |
+| service.ports.http.protocol | string | `"TCP"` | Service protocol. |
 | service.type | string | `"ClusterIP"` | Choose the kind of Service, one of "ClusterIP", "NodePort" or "LoadBalancer". |
 | serviceAccount.annotations | object | `{}` | Additional custom annotations for the ServiceAccount. |
 | serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |

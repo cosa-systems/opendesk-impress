@@ -44,6 +44,7 @@ helm install my-release --version 1.0.0 opendesk-impress/frontend
 | containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Enable container privileged escalation. |
 | containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Security capabilities for container. |
 | containerSecurityContext.enabled | bool | `true` | Enable security context. |
+| containerSecurityContext.privileged | bool | `false` | Run container in privileged mode |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container's root filesystem as read-only. |
 | containerSecurityContext.runAsGroup | int | `1000` | Process group id. |
 | containerSecurityContext.runAsNonRoot | bool | `true` | Run container as a user. |
@@ -84,15 +85,10 @@ helm install my-release --version 1.0.0 opendesk-impress/frontend
 | lifecycleHooks | object | `{}` | Lifecycle to automate configuration before or after startup. |
 | nameOverride | string | `""` | String to partially override release name. |
 | nodeSelector | object | `{}` | Node labels for pod assignment. Ref: https://kubernetes.io/docs/user-guide/node-selection/ |
-| persistence.accessModes | list | `["ReadWriteOnce"]` | The volume access modes, some of "ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany", "ReadWriteOncePod".  "ReadWriteOnce" => The volume can be mounted as read-write by a single node. ReadWriteOnce access mode still can                    allow multiple pods to access the volume when the pods are running on the same node. "ReadOnlyMany" => The volume can be mounted as read-only by many nodes. "ReadWriteMany" => The volume can be mounted as read-write by many nodes. "ReadWriteOncePod" => The volume can be mounted as read-write by a single Pod. Use ReadWriteOncePod access mode if                       you want to ensure that only one pod across whole cluster can read that PVC or write to it.  |
-| persistence.annotations | object | `{}` | Annotations for the PVC. |
-| persistence.dataSource | object | `{}` | Custom PVC data source. |
-| persistence.enabled | bool | `true` | Enable data persistence (true) or use temporary storage (false). |
-| persistence.existingClaim | string | `""` | Use an already existing claim. |
-| persistence.labels | object | `{}` | Labels for the PVC. |
-| persistence.selector | object | `{}` | Selector to match an existing Persistent Volume (this value is evaluated as a template).  selector:   matchLabels:     app: my-app  |
-| persistence.size | string | `"1Gi"` | The volume size with unit. |
-| persistence.storageClass | string | `""` | The (storage) class of PV. |
+| pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Pod disruption budget Ref.: https://kubernetes.io/docs/tasks/run-application/configure-pdb/ |
+| pdb.enabled | bool | `true` | Whether PodDisruptionBudget for the frontend should be enabled |
+| pdb.maxUnavailable | string | `nil` | How many pods can be unavailable at any given time |
+| pdb.minAvailable | int | `1` | How many pods need to be available at any given time |
 | podAnnotations | object | `{}` | Pod Annotations. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | podLabels | object | `{}` | Pod Labels. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
 | podSecurityContext.enabled | bool | `true` | Enable security context. |
@@ -107,7 +103,7 @@ helm install my-release --version 1.0.0 opendesk-impress/frontend
 | service.enabled | bool | `true` | Enable kubernetes service creation. |
 | service.ports.http.containerPort | int | `8080` | Internal port. |
 | service.ports.http.port | int | `80` | Accessible port. |
-| service.ports.http.protocol | string | `"TCP"` | service protocol. |
+| service.ports.http.protocol | string | `"TCP"` | Service protocol. |
 | service.type | string | `"ClusterIP"` | Choose the kind of Service, one of "ClusterIP", "NodePort" or "LoadBalancer". |
 | serviceAccount.annotations | object | `{}` | Additional custom annotations for the ServiceAccount. |
 | serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |
@@ -115,7 +111,7 @@ helm install my-release --version 1.0.0 opendesk-impress/frontend
 | serviceAccount.labels | object | `{}` | Additional custom labels for the ServiceAccount. |
 | serviceMedia.annotations | object | `{}` | Service Annotations |
 | serviceMedia.enabled | bool | `true` | Whether the media service is enabled |
-| serviceMedia.port | int | `9000` | Objectstore port |
+| serviceMedia.port | int | `443` | Objectstorage port |
 | serviceMedia.type | string | `"ExternalName"` | Type of media service |
 | terminationGracePeriodSeconds | string | `""` | In seconds, time the given to the pod needs to terminate gracefully. Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods |
 | tolerations | list | `[]` | Tolerations for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/ |

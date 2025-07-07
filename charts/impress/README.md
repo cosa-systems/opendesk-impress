@@ -4,7 +4,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 # impress
 
-Impress
+A chart for deploying La Suite Docs : Collaborative Text Editing
 
 ## Installing the Chart
 
@@ -47,7 +47,7 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | backend.additionalAnnotations | object | `{}` | Additional custom annotations to add to all deployed objects. |
 | backend.additionalLabels | object | `{}` | Additional custom labels to add to all deployed objects. |
 | backend.affinity | object | `{}` | Affinity for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity Note: podAffinityPreset, podAntiAffinityPreset, and nodeAffinityPreset will be ignored when it's set. |
-| backend.cleanup.deletePodsOnSuccess | bool | `false` |  |
+| backend.cleanup.deletePodsOnSuccess | bool | `false` | Whether to delete successfully run pods (e.g. jobs) |
 | backend.configuration.ai.allowReachFrom | string | `""` | Allow AI requests from public, authenticated or restricted |
 | backend.configuration.ai.apiKey.existingSecret.key | string | `"aiApiKey"` | Key where AI API Key is stored |
 | backend.configuration.ai.apiKey.existingSecret.name | string | `nil` | Name of existing secret containing AI API key, overrules provided value |
@@ -80,10 +80,10 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | backend.configuration.django.allowedHosts | string | `"*"` | List of strings representing the host/domain names that this Django site can serve |
 | backend.configuration.django.configuration | string | `"Production"` | Django configuration |
 | backend.configuration.django.csrfTrustedOrigins | string | `""` | List of trusted origins for unsafe requests (e.g. POST) |
-| backend.configuration.django.secretKey.existingSecret.key | string | `"djangoSecretKey"` |  |
-| backend.configuration.django.secretKey.existingSecret.name | string | `nil` |  |
+| backend.configuration.django.secretKey.existingSecret.key | string | `"djangoSecretKey"` | Key where Django secret key is stored |
+| backend.configuration.django.secretKey.existingSecret.name | string | `nil` | Name of existing secret containing Django secret key, overrules provided value |
 | backend.configuration.django.secretKey.value | string | `""` | Value of Django secret key |
-| backend.configuration.django.settingsModule | string | `"impress.settings"` |  |
+| backend.configuration.django.settingsModule | string | `"impress.settings"` | Django settings module |
 | backend.configuration.django.siteDomain | string | `""` | Domain of this site, will default to global.fqdn |
 | backend.configuration.django.siteName | string | `""` | Name of this site |
 | backend.configuration.django.superuserEmail.existingSecret.key | string | `"djangoSuperuserEmail"` | Key where superuser email is stored |
@@ -92,7 +92,7 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | backend.configuration.django.superuserPassword.existingSecret.key | string | `"djangoSuperuserPassword"` | Key where superuser password is stored |
 | backend.configuration.django.superuserPassword.existingSecret.name | string | `nil` | Name of existing key containing superuser password, overrules provided value |
 | backend.configuration.django.superuserPassword.value | string | `""` | Superuser password |
-| backend.configuration.documentImageMaxSize | string | `"10485760"` | Max size of images in bytes |
+| backend.configuration.documentImageMaxSize | string | `nil` | Max size of images in bytes |
 | backend.configuration.email.brandName | string | `""` | Email brand name |
 | backend.configuration.email.from | string | `""` | From address |
 | backend.configuration.email.host | string | `"postfix"` | SMTP relay server |
@@ -118,10 +118,9 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | backend.configuration.oidc.authRequestExtraParams | string | `"{}"` | Auth Request extra parameters |
 | backend.configuration.oidc.createUser | string | `"True"` | Whether to create User |
 | backend.configuration.oidc.enabled | bool | `false` | Whether to enable OIDC |
-| backend.configuration.oidc.essentialClaims | string | `"email"` | essential claims |
+| backend.configuration.oidc.essentialClaims | string | `"email"` | Essential claims |
 | backend.configuration.oidc.fallbackToEmailForIdentification | string | `"True"` | Fallback to email for identification |
-| backend.configuration.oidc.fieldToShortname | string | `"first_name"` | Field to short name |
-| backend.configuration.oidc.fieldsToFullname | string | `"first_name last_name"` | Fields to full name |
+| backend.configuration.oidc.fullnameFields | string | `"first_name last_name"` | Fields to full name |
 | backend.configuration.oidc.loginRedirectUrl | string | `""` | Redirect URL after login |
 | backend.configuration.oidc.loginRedirectUrlFailure | string | `""` | Redirect URL on failure |
 | backend.configuration.oidc.logoutRedirectUrl | string | `""` | Redirect URL after logout |
@@ -138,8 +137,9 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | backend.configuration.oidc.rpClientSecret.existingSecret.key | string | `"oidcRpClientSecret"` | Key where client secret is stored |
 | backend.configuration.oidc.rpClientSecret.existingSecret.name | string | `nil` | Name of existing secret containing client secret, overrules provided value |
 | backend.configuration.oidc.rpClientSecret.value | string | `""` | Relying Party client secret |
-| backend.configuration.oidc.rpScopes | string | `"openid email"` |  |
+| backend.configuration.oidc.rpScopes | string | `"openid email"` | Relying Party scopes |
 | backend.configuration.oidc.rpSignAlgo | string | `"RS256"` | Relying Party signature algorithm, default `RS256` |
+| backend.configuration.oidc.shortnameField | string | `"first_name"` | Field to short name |
 | backend.configuration.oidc.storeIDToken | string | `"True"` | Whether to store ID token |
 | backend.configuration.oidc.useNonce | string | `"True"` | Use Nonce |
 | backend.configuration.redisUrl.existingSecret.key | string | `"redisUrl"` | Key where Redis URL is stored |
@@ -150,6 +150,7 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | backend.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Enable container privileged escalation. |
 | backend.containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Security capabilities for container. |
 | backend.containerSecurityContext.enabled | bool | `true` | Enable security context. |
+| backend.containerSecurityContext.privileged | bool | `false` | Run container in privileged mode |
 | backend.containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container's root filesystem as read-only. |
 | backend.containerSecurityContext.runAsGroup | int | `1001` | Process group id. |
 | backend.containerSecurityContext.runAsNonRoot | bool | `true` | Run container as a user. |
@@ -191,6 +192,10 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | backend.livenessProbe.timeoutSeconds | int | `5` | Timeout for command return. |
 | backend.nameOverride | string | `""` | String to partially override release name. |
 | backend.nodeSelector | object | `{}` | Node labels for pod assignment. Ref: https://kubernetes.io/docs/user-guide/node-selection/ |
+| backend.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Pod disruption budget Ref.: https://kubernetes.io/docs/tasks/run-application/configure-pdb/ |
+| backend.pdb.enabled | bool | `true` | Whether PodDisruptionBudget for the backend should be enabled |
+| backend.pdb.maxUnavailable | string | `nil` | How many pods can be unavailable at any given time |
+| backend.pdb.minAvailable | int | `1` | How many pods need to be available at any given time |
 | backend.podAnnotations | object | `{}` | Pod Annotations. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | backend.podAnnotationsCreateUser | object | `{}` | Pod Annotations for Create User Job. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | backend.podAnnotationsMigrate | object | `{}` | Pod Annotations for Migrate Job. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
@@ -213,7 +218,7 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | backend.service.enabled | bool | `true` | Enable kubernetes service creation. |
 | backend.service.ports.http.containerPort | int | `8000` | Internal port. |
 | backend.service.ports.http.port | int | `80` | Accessible port. |
-| backend.service.ports.http.protocol | string | `"TCP"` | service protocol. |
+| backend.service.ports.http.protocol | string | `"TCP"` | Service protocol. |
 | backend.service.type | string | `"ClusterIP"` | Choose the kind of Service, one of "ClusterIP", "NodePort" or "LoadBalancer". |
 | backend.serviceAccount.annotations | object | `{}` | Additional custom annotations for the ServiceAccount. |
 | backend.serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |
@@ -241,6 +246,7 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | frontend.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Enable container privileged escalation. |
 | frontend.containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Security capabilities for container. |
 | frontend.containerSecurityContext.enabled | bool | `true` | Enable security context. |
+| frontend.containerSecurityContext.privileged | bool | `false` | Run container in privileged mode |
 | frontend.containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container's root filesystem as read-only. |
 | frontend.containerSecurityContext.runAsGroup | int | `1000` | Process group id. |
 | frontend.containerSecurityContext.runAsNonRoot | bool | `true` | Run container as a user. |
@@ -277,15 +283,10 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | frontend.lifecycleHooks | object | `{}` | Lifecycle to automate configuration before or after startup. |
 | frontend.nameOverride | string | `""` | String to partially override release name. |
 | frontend.nodeSelector | object | `{}` | Node labels for pod assignment. Ref: https://kubernetes.io/docs/user-guide/node-selection/ |
-| frontend.persistence.accessModes | list | `["ReadWriteOnce"]` | The volume access modes, some of "ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany", "ReadWriteOncePod".  "ReadWriteOnce" => The volume can be mounted as read-write by a single node. ReadWriteOnce access mode still can                    allow multiple pods to access the volume when the pods are running on the same node. "ReadOnlyMany" => The volume can be mounted as read-only by many nodes. "ReadWriteMany" => The volume can be mounted as read-write by many nodes. "ReadWriteOncePod" => The volume can be mounted as read-write by a single Pod. Use ReadWriteOncePod access mode if                       you want to ensure that only one pod across whole cluster can read that PVC or write to it.  |
-| frontend.persistence.annotations | object | `{}` | Annotations for the PVC. |
-| frontend.persistence.dataSource | object | `{}` | Custom PVC data source. |
-| frontend.persistence.enabled | bool | `true` | Enable data persistence (true) or use temporary storage (false). |
-| frontend.persistence.existingClaim | string | `""` | Use an already existing claim. |
-| frontend.persistence.labels | object | `{}` | Labels for the PVC. |
-| frontend.persistence.selector | object | `{}` | Selector to match an existing Persistent Volume (this value is evaluated as a template).  selector:   matchLabels:     app: my-app  |
-| frontend.persistence.size | string | `"1Gi"` | The volume size with unit. |
-| frontend.persistence.storageClass | string | `""` | The (storage) class of PV. |
+| frontend.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Pod disruption budget Ref.: https://kubernetes.io/docs/tasks/run-application/configure-pdb/ |
+| frontend.pdb.enabled | bool | `true` | Whether PodDisruptionBudget for the frontend should be enabled |
+| frontend.pdb.maxUnavailable | string | `nil` | How many pods can be unavailable at any given time |
+| frontend.pdb.minAvailable | int | `1` | How many pods need to be available at any given time |
 | frontend.podAnnotations | object | `{}` | Pod Annotations. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | frontend.podLabels | object | `{}` | Pod Labels. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
 | frontend.podSecurityContext.enabled | bool | `true` | Enable security context. |
@@ -300,7 +301,7 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | frontend.service.enabled | bool | `true` | Enable kubernetes service creation. |
 | frontend.service.ports.http.containerPort | int | `8080` | Internal port. |
 | frontend.service.ports.http.port | int | `80` | Accessible port. |
-| frontend.service.ports.http.protocol | string | `"TCP"` | service protocol. |
+| frontend.service.ports.http.protocol | string | `"TCP"` | Service protocol. |
 | frontend.service.type | string | `"ClusterIP"` | Choose the kind of Service, one of "ClusterIP", "NodePort" or "LoadBalancer". |
 | frontend.serviceAccount.annotations | object | `{}` | Additional custom annotations for the ServiceAccount. |
 | frontend.serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |
@@ -308,7 +309,7 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | frontend.serviceAccount.labels | object | `{}` | Additional custom labels for the ServiceAccount. |
 | frontend.serviceMedia.annotations | object | `{}` | Service Annotations |
 | frontend.serviceMedia.enabled | bool | `true` | Whether the media service is enabled |
-| frontend.serviceMedia.port | int | `9000` | Objectstore port |
+| frontend.serviceMedia.port | int | `443` | Objectstorage port |
 | frontend.serviceMedia.type | string | `"ExternalName"` | Type of media service |
 | frontend.terminationGracePeriodSeconds | string | `""` | In seconds, time the given to the pod needs to terminate gracefully. Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods |
 | frontend.tolerations | list | `[]` | Tolerations for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/ |
@@ -322,7 +323,7 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | y-provider.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Enable container privileged escalation. |
 | y-provider.containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Security capabilities for container. |
 | y-provider.containerSecurityContext.enabled | bool | `true` | Enable security context. |
-| y-provider.containerSecurityContext.privileged | bool | `false` |  |
+| y-provider.containerSecurityContext.privileged | bool | `false` | Run container in privileged mode |
 | y-provider.containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container's root filesystem as read-only. |
 | y-provider.containerSecurityContext.runAsGroup | int | `1001` | Process group id. |
 | y-provider.containerSecurityContext.runAsNonRoot | bool | `true` | Run container as a user. |
@@ -366,34 +367,15 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | y-provider.livenessProbe.timeoutSeconds | int | `1` | Timeout for command return. |
 | y-provider.nameOverride | string | `""` | String to partially override release name. |
 | y-provider.nodeSelector | object | `{}` | Node labels for pod assignment. Ref: https://kubernetes.io/docs/user-guide/node-selection/ |
-| y-provider.persistence.accessModes | list | `["ReadWriteOnce"]` | The volume access modes, some of "ReadWriteOnce", "ReadOnlyMany", "ReadWriteMany", "ReadWriteOncePod".  "ReadWriteOnce" => The volume can be mounted as read-write by a single node. ReadWriteOnce access mode still can                    allow multiple pods to access the volume when the pods are running on the same node. "ReadOnlyMany" => The volume can be mounted as read-only by many nodes. "ReadWriteMany" => The volume can be mounted as read-write by many nodes. "ReadWriteOncePod" => The volume can be mounted as read-write by a single Pod. Use ReadWriteOncePod access mode if                       you want to ensure that only one pod across whole cluster can read that PVC or write to it.  |
-| y-provider.persistence.annotations | object | `{}` | Annotations for the PVC. |
-| y-provider.persistence.dataSource | object | `{}` | Custom PVC data source. |
-| y-provider.persistence.enabled | bool | `true` | Enable data persistence (true) or use temporary storage (false). |
-| y-provider.persistence.existingClaim | string | `""` | Use an already existing claim. |
-| y-provider.persistence.labels | object | `{}` | Labels for the PVC. |
-| y-provider.persistence.selector | object | `{}` | Selector to match an existing Persistent Volume (this value is evaluated as a template).  selector:   matchLabels:     app: my-app  |
-| y-provider.persistence.size | string | `"1Gi"` | The volume size with unit. |
-| y-provider.persistence.storageClass | string | `""` | The (storage) class of PV. |
+| y-provider.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Pod disruption budget Ref.: https://kubernetes.io/docs/tasks/run-application/configure-pdb/ |
+| y-provider.pdb.enabled | bool | `true` | Whether PodDisruptionBudget for the Y-Provider should be enabled |
+| y-provider.pdb.maxUnavailable | string | `nil` | How many pods can be unavailable at any given time |
+| y-provider.pdb.minAvailable | int | `1` | How many pods need to be available at any given time |
 | y-provider.podAnnotations | object | `{}` | Pod Annotations. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
 | y-provider.podLabels | object | `{}` | Pod Labels. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
 | y-provider.podSecurityContext.enabled | bool | `true` | Enable security context. |
 | y-provider.podSecurityContext.fsGroup | int | `1001` | If specified, all processes of the container are also part of the supplementary group. |
 | y-provider.podSecurityContext.fsGroupChangePolicy | string | `"Always"` | Change ownership and permission of the volume before being exposed inside a Pod. |
-| y-provider.prometheus.prometheusRule.enabled | bool | `false` | Enable Prometheus PrometheusRule. This requires "monitoring.coreos.com" CRD. |
-| y-provider.prometheus.prometheusRule.groups | list | `[]` | Groups, containing the alert rules. |
-| y-provider.prometheus.prometheusRule.labels | object | `{}` | Additional labels for PrometheusRule resource. |
-| y-provider.prometheus.prometheusRule.namespace | string | `""` | Namespace where to deploy serviceMonitor resource to. |
-| y-provider.prometheus.serviceMonitor.enabled | bool | `false` | Enable Prometheus ServiceMonitor. This requires "monitoring.coreos.com" CRD. |
-| y-provider.prometheus.serviceMonitor.honorLabels | bool | `false` | honorLabels chooses the metrics labels on collisions with target labels. |
-| y-provider.prometheus.serviceMonitor.interval | string | `"30s"` | Interval at which metrics should be scraped. |
-| y-provider.prometheus.serviceMonitor.jobLabel | string | `""` | The name of the label on the target service to use as the job name in prometheus. |
-| y-provider.prometheus.serviceMonitor.labels | object | `{}` | Additional labels for ServiceMonitor resource. |
-| y-provider.prometheus.serviceMonitor.metricRelabelings | list | `[]` | MetricRelabelConfigs to apply to samples before ingestion. |
-| y-provider.prometheus.serviceMonitor.namespace | string | `""` | Namespace where to deploy serviceMonitor resource to. |
-| y-provider.prometheus.serviceMonitor.path | string | `"/metrics"` | Metrics service HTTP path. |
-| y-provider.prometheus.serviceMonitor.relabelings | list | `[]` | RelabelConfigs to apply to samples before scraping. |
-| y-provider.prometheus.serviceMonitor.scrapeTimeout | string | `"30s"` | Specify the timeout after which the scrape is ended. |
 | y-provider.readinessProbe.enabled | bool | `true` | Enables kubernetes ReadinessProbe. |
 | y-provider.readinessProbe.failureThreshold | int | `10` | Number of failed executions until container is terminated. |
 | y-provider.readinessProbe.initialDelaySeconds | int | `15` | Delay after container start until ReadinessProbe is executed. |
@@ -409,7 +391,7 @@ helm install my-release --version 1.0.0 opendesk-impress/impress
 | y-provider.service.enabled | bool | `true` | Enable kubernetes service creation. |
 | y-provider.service.ports.http.containerPort | int | `4444` | Internal port. |
 | y-provider.service.ports.http.port | int | `443` | Accessible port. |
-| y-provider.service.ports.http.protocol | string | `"TCP"` | service protocol. |
+| y-provider.service.ports.http.protocol | string | `"TCP"` | Service protocol. |
 | y-provider.service.type | string | `"ClusterIP"` | Choose the kind of Service, one of "ClusterIP", "NodePort" or "LoadBalancer". |
 | y-provider.serviceAccount.annotations | object | `{}` | Additional custom annotations for the ServiceAccount. |
 | y-provider.serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |
