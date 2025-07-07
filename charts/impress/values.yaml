@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: 2025 Zentrum für Digitale Souveränität der Öffentlichen Verwaltung (ZenDiS) GmbH
+# SPDX-License-Identifier: Apache-2.0
+---
+# The global properties are used to configure multiple charts at once.
+global:
+  # -- Container registry address.
+  imageRegistry: "docker.io"
+
+  # -- Credentials to fetch images from private registry.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+  #
+  # imagePullSecrets:
+  #   - "docker-registry"
+  #
+  imagePullSecrets: []
+
+  # -- fully qualified domain name of this impress instance
+  fqdn: ""
+
+  # -- TLS secret name
+  tlsSecretName: ""
+
+  collaborationServerSecret:
+    # -- Value of collaboration server secret
+    value: ""
+    existingSecret:
+      # -- Name of existing secret containing collaboration server secret, overrides provided value
+      name: ""
+      # -- Key where collaboration server secret is stored
+      key: "collaborationServerSecret"
+
+  yProviderApiKey:
+    # -- Value of Y Provider API key
+    value: ""
+    existingSecret:
+      # -- Name of existing secret containing Y Provider API key, overrides provided value
+      name: ""
+      # -- Key where Y Provider API key is stored
+      key: "yProviderApiKey"
+
+# backend: {}
+
+# frontend: {}
+
+# y-provider: {}
+...

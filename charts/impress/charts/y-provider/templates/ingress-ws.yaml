@@ -1,0 +1,47 @@
+{{/*
+SPDX-FileCopyrightText: 2025 Zentrum für Digitale Souveränität der Öffentlichen Verwaltung (ZenDiS) GmbH
+SPDX-License-Identifier: Apache-2.0
+*/}}
+{{- if .Values.ingressCollaborationWs.enabled -}}
+---
+apiVersion: "{{ include "common.capabilities.ingress.apiVersion" . }}"
+kind: "Ingress"
+metadata:
+  name: "{{ include "common.names.fullname" . }}-ws"
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.additionalLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.additionalLabels "context" . ) | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- if .Values.ingressCollaborationWs.defaultAnnotations }}
+    nginx.ingress.kubernetes.io/enable-websocket: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "86400"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "86400"
+    nginx.ingress.kubernetes.io/upstream-hash-by: "$arg_room"
+    {{- end }}
+    {{- if .Values.additionalAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.additionalAnnotations "context" . ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.ingressCollaborationWs.annotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.ingressCollaborationWs.annotations "context" . ) | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if .Values.ingressCollaborationWs.ingressClassName }}
+  ingressClassName: {{ .Values.ingressCollaborationWs.ingressClassName | quote }}
+  {{- end }}
+  {{- if .Values.ingressCollaborationWs.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ coalesce .Values.ingressCollaborationWs.host .Values.global.fqdn | quote }}
+      secretName: "{{ coalesce .Values.ingressCollaborationWs.tls.secretName .Values.global.tlsSecretName | default (printf "%s-tls" (include "common.names.fullname" . )) }}"
+  {{- end }}
+  rules:
+    - host: {{ coalesce .Values.ingressCollaborationWs.host .Values.global.fqdn | quote }}
+      http:
+        paths:
+          - path: {{ .Values.ingressCollaborationWs.path }}
+            pathType: {{ .Values.ingressCollaborationWs.pathType }}
+            backend: {{- include "common.ingress.backend" (dict "serviceName" (include "common.names.fullname" .) "servicePort" "http" "context" .) | nindent 14 }}
+...
+{{- end }}

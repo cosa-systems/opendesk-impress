@@ -1,0 +1,19 @@
+# SPDX-FileCopyrightText: 2023 Bundesministerium des Innern und für Heimat, PG ZenDiS "Projektgruppe für Aufbau ZenDiS"
+#
+# SPDX-License-Identifier: Apache-2.0
+---
+annotations:
+  category: "Communication"
+  licenses: "Apache-2.0"
+apiVersion: "v2"
+dependencies:
+  - name: "common"
+    version: "^2.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+description: "A Helm chart for deploying the Impress frontend services"
+home: "https://docs.numerique.gouv.fr/"
+icon: ""
+name: "frontend"
+type: "application"
+version: "1.0.0"
+...

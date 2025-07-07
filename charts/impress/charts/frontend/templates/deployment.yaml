@@ -1,0 +1,108 @@
+{{/*
+SPDX-FileCopyrightText: 2025 Zentrum für Digitale Souveränität der Öffentlichen Verwaltung (ZenDiS) GmbH
+SPDX-License-Identifier: Apache-2.0
+*/}}
+---
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . | quote }}
+kind: "Deployment"
+metadata:
+  name: {{ include "common.names.fullname" . | quote }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.additionalLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.additionalLabels "context" . ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.additionalAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.additionalAnnotations "context" . ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "common.labels.matchLabels" . | nindent 6 }}
+  strategy:
+    {{- include "common.tplvalues.render" (dict "value" .Values.updateStrategy "context" .) | nindent 4 }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" .) | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "common.labels.standard" . | nindent 8 }}
+    spec:
+      {{- if or .Values.imagePullSecrets .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range .Values.global.imagePullSecrets }}
+        - name: "{{ . }}"
+        {{- end }}
+        {{- range .Values.imagePullSecrets }}
+        - name: "{{ . }}"
+        {{- end }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.tolerations "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- include "common.tplvalues.render" (dict "value" .Values.topologySpreadConstraints "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" (dict "value" .Values.nodeSelector "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ include "common.names.fullname" . }}
+      {{- end }}
+      {{- if .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- end }}
+      containers:
+        - name: {{ include "common.names.fullname" . | quote }}
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          image: "{{ coalesce .Values.image.registry .Values.global.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.imagePullPolicy }}
+          env:
+            - name: "NEXT_PUBLIC_API_ORIGIN"
+              value: {{ coalesce .Values.configuration.publicApiOrigin .Values.global.fqdn | quote }}
+            - name: "NEXT_PUBLIC_MEDIA_URL"
+              value: {{ .Values.configuration.publicMediaUrl | default (printf "https://%s" .Values.configuration.objectStoreHost) | quote }}
+            - name: "NEXT_PUBLIC_Y_PROVIDER_URL"
+              value: {{ .Values.configuration.publicYProviderUrl | default (printf "wss://%s/ws" .Values.global.fqdn) | quote }}
+            - name: "PORT"
+              value: {{ .Values.configuration.port | quote }}
+          {{- with .Values.extraEnvVars }}
+            {{- . | toYaml | nindent 12 }}
+          {{- end }}
+          ports:
+            {{- range $key, $value := .Values.service.ports }}
+            - name: {{ $key }}
+              containerPort: {{ $value.containerPort }}
+              protocol: {{ $value.protocol }}
+            {{- end }}
+          {{- if .Values.resources }}
+          resources: {{- include "common.tplvalues.render" (dict "value" .Values.resources "context" .) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.lifecycleHooks "context" .) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: "tmp"
+              mountPath: "/tmp"
+            {{- if .Values.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" .) | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: "tmp"
+          emptyDir: {}
+        {{- if .Values.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes  "context" .) | nindent 8 }}
+        {{- end }}
+...

@@ -1,0 +1,146 @@
+{{/*
+SPDX-FileCopyrightText: 2025 Zentrum für Digitale Souveränität der Öffentlichen Verwaltung (ZenDiS) GmbH
+SPDX-License-Identifier: Apache-2.0
+*/}}
+---
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . | quote }}
+kind: "Deployment"
+metadata:
+  name: {{ include "common.names.fullname" . | quote }}
+  namespace: {{ include "common.names.namespace" . | quote }}
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.additionalLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.additionalLabels "context" . ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.additionalAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.additionalAnnotations "context" . ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "common.labels.matchLabels" . | nindent 6 }}
+  strategy:
+    {{- include "common.tplvalues.render" (dict "value" .Values.updateStrategy "context" .) | nindent 4 }}
+  template:
+    metadata:
+      annotations:
+        {{- if .Values.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" .) | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "common.labels.standard" . | nindent 8 }}
+    spec:
+      {{- if or .Values.imagePullSecrets .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range .Values.global.imagePullSecrets }}
+        - name: "{{ . }}"
+        {{- end }}
+        {{- range .Values.imagePullSecrets }}
+        - name: "{{ . }}"
+        {{- end }}
+      {{- end }}
+      {{- if .Values.affinity }}
+      affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.tolerations "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.topologySpreadConstraints }}
+      topologySpreadConstraints: {{- include "common.tplvalues.render" (dict "value" .Values.topologySpreadConstraints "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" (dict "value" .Values.nodeSelector "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ include "common.names.fullname" . }}
+      {{- end }}
+      {{- if .Values.terminationGracePeriodSeconds }}
+      terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
+      {{- end }}
+      containers:
+        - name: {{ include "common.names.fullname" . | quote }}
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          image: "{{ coalesce .Values.image.registry .Values.global.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.imagePullPolicy }}
+          env:
+            - name: "COLLABORATION_LOGGING"
+              value: {{ if .Values.debug }}"true"{{ else }}"false"{{ end }}
+            - name: "COLLABORATION_BACKEND_BASE_URL"
+              value: {{ .Values.configuration.collaborationBackendBaseUrl | default (printf "https://%s" .Values.global.fqdn) | quote }}
+            - name: "COLLABORATION_SERVER_ORIGIN"
+              value: {{ .Values.configuration.collaborationServerOrigin | default (printf "https://%s" .Values.global.fqdn) | quote }}
+            - name: "COLLABORATION_SERVER_SECRET"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.collaborationServerSecret.existingSecret.name | default (include "common.names.fullname" .) | quote }}
+                  key: {{ .Values.global.collaborationServerSecret.existingSecret.key | default "collaborationServerSecret" | quote }}
+            - name: "Y_PROVIDER_API_KEY"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.global.yProviderApiKey.existingSecret.name | default (include "common.names.fullname" .) | quote }}
+                  key: {{ .Values.global.yProviderApiKey.existingSecret.key | default "yProviderApiKey" | quote }}
+          {{- with .Values.extraEnvVars }}
+            {{- . | toYaml | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: "/ping"
+              port: {{ .Values.service.ports.http.containerPort }}
+              scheme: HTTP
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold }}
+          readinessProbe:
+            httpGet:
+              path: "/ping"
+              port: {{ .Values.service.ports.http.containerPort }}
+              scheme: HTTP
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold }}
+          startupProbe:
+            httpGet:
+              path: "/ping"
+              port: {{ .Values.service.ports.http.containerPort }}
+              scheme: HTTP
+            initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+            timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+            successThreshold: {{ .Values.startupProbe.successThreshold }}
+          ports:
+            {{- range $key, $value := .Values.service.ports }}
+            - name: {{ $key }}
+              containerPort: {{ $value.containerPort }}
+              protocol: {{ $value.protocol }}
+            {{- end }}
+          {{- if .Values.resources }}
+          resources: {{- include "common.tplvalues.render" (dict "value" .Values.resources "context" .) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.lifecycleHooks "context" .) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: "tmp"
+              mountPath: "/tmp"
+            {{- if .Values.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" .) | nindent 12 }}
+            {{- end }}
+      volumes:
+        - name: "tmp"
+          emptyDir: {}
+        {{- if .Values.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes  "context" .) | nindent 8 }}
+        {{- end }}
+...

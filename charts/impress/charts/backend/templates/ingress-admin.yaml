@@ -1,0 +1,41 @@
+{{/*
+SPDX-FileCopyrightText: 2025 Zentrum für Digitale Souveränität der Öffentlichen Verwaltung (ZenDiS) GmbH
+SPDX-License-Identifier: Apache-2.0
+*/}}
+{{- if .Values.ingressAdmin.enabled -}}
+---
+apiVersion: "{{ include "common.capabilities.ingress.apiVersion" . }}"
+kind: "Ingress"
+metadata:
+  name: "{{ include "common.names.fullname" . }}-admin"
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.additionalLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.additionalLabels "context" . ) | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- if .Values.additionalAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.additionalAnnotations "context" . ) | nindent 4 }}
+    {{- end }}
+    {{- if .Values.ingressAdmin.annotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.ingressAdmin.annotations "context" . ) | nindent 4 }}
+    {{- end }}
+spec:
+  {{- if .Values.ingressAdmin.ingressClassName }}
+  ingressClassName: {{ .Values.ingressAdmin.ingressClassName | quote }}
+  {{- end }}
+  {{- if .Values.ingressAdmin.tls.enabled }}
+  tls:
+    - hosts:
+        - {{ coalesce .Values.ingressAdmin.host .Values.global.fqdn | quote }}
+      secretName: "{{ coalesce .Values.ingressAdmin.tls.secretName .Values.global.tlsSecretName | default (printf "%s-tls" (include "common.names.fullname" . )) }}"
+  {{- end }}
+  rules:
+    - host: {{ coalesce .Values.ingressAdmin.host .Values.global.fqdn | quote }}
+      http:
+        paths:
+          - path: {{ .Values.ingressAdmin.path }}
+            pathType: {{ .Values.ingressAdmin.pathType }}
+            backend: {{- include "common.ingress.backend" (dict "serviceName" (include "common.names.fullname" .) "servicePort" "http" "context" .) | nindent 14 }}
+...
+{{- end }}

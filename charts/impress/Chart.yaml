@@ -1,0 +1,26 @@
+# SPDX-FileCopyrightText: 2025 Zentrum für Digitale Souveränität der Öffentlichen Verwaltung (ZenDiS) GmbH
+# SPDX-License-Identifier: Apache-2.0
+---
+annotations:
+  category: "Groupware"
+  licenses: "Apache-2.0"
+apiVersion: "v2"
+dependencies:
+  - name: "backend"
+    repository: ""
+    version: "*"
+  - name: "frontend"
+    repository: ""
+    version: "*"
+  - name: "y-provider"
+    repository: ""
+    version: "*"
+description: "A chart for deploying La Suite Docs : Collaborative Text Editing"
+home: "https://docs.numerique.gouv.fr/"
+keywords:
+  - "groupware"
+  - "office"
+name: "impress"
+type: "application"
+version: "1.0.0"
+...
