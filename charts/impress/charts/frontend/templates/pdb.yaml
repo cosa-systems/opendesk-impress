@@ -19,6 +19,7 @@ spec:
   maxUnavailable: {{ .Values.pdb.maxUnavailable | default 1 }}
   {{- end }}
   selector:
-    {{- include "common.labels.matchLabels" . | nindent 4 }}
+    matchLabels:
+      {{- include "common.labels.matchLabels" . | nindent 6 }}
 ...
 {{- end }}
