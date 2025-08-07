@@ -1,3 +1,10 @@
+## [1.0.1](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.0.0...v1.0.1) (2025-08-07)
+
+
+### Bug Fixes
+
+* **impress:** Fix pdb matchLabels ([a732bab](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/a732babd001693516b2c4ddb9f30bd9411e360bf))
+
 # 1.0.0 (2025-07-07)
 
 
