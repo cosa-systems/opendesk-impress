@@ -1,3 +1,10 @@
+## [1.0.2](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.0.1...v1.0.2) (2025-09-02)
+
+
+### Bug Fixes
+
+* **impress:** Fix default schema for publicApiOrigin ([4d02a2e](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/4d02a2e964c7d10f19f3bd468d4113bbbfe09872))
+
 ## [1.0.1](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.0.0...v1.0.1) (2025-08-07)
 
 
