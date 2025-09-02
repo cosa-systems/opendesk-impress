@@ -71,7 +71,7 @@ spec:
           imagePullPolicy: {{ .Values.image.imagePullPolicy }}
           env:
             - name: "NEXT_PUBLIC_API_ORIGIN"
-              value: {{ coalesce .Values.configuration.publicApiOrigin .Values.global.fqdn | quote }}
+              value: {{ .Values.configuration.publicApiOrigin | default (printf "https://%s" .Values.global.fqdn) | quote }}
             - name: "NEXT_PUBLIC_MEDIA_URL"
               value: {{ .Values.configuration.publicMediaUrl | default (printf "https://%s" .Values.configuration.objectStoreHost) | quote }}
             - name: "NEXT_PUBLIC_Y_PROVIDER_URL"
