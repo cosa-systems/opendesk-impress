@@ -11,7 +11,8 @@ metadata:
   labels:
     {{- include "common.labels.standard" . | nindent 4 }}
   annotations:
-    "helm.sh/hook": "post-install"
+    "helm.sh/hook": "post-install,post-upgrade"
+    "helm.sh/hook-delete-policy": "before-hook-creation"
     "argocd.argoproj.io/sync-options": "Replace=true,Force=true"
 spec:
   {{- if .Values.cleanup.deletePodsOnSuccess }}
