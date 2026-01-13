@@ -1,3 +1,11 @@
+## [1.0.3](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.0.2...v1.0.3) (2026-01-13)
+
+
+### Bug Fixes
+
+* **backend:** Add Helm annotations to job to ensure it reruns for executing migrations ([0c2bf49](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/0c2bf4995bb1e13e59e90a9d897c17761748fec5))
+* **ci:** Update to gitlab-config 2.5.1 incl. subchart support ([e5522f8](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/e5522f820145a3771044cb44d9dbd79da8336f8d))
+
 ## [1.0.2](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.0.1...v1.0.2) (2025-09-02)
 
 
