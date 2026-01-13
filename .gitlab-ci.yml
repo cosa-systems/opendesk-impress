@@ -3,7 +3,7 @@
 ---
 include:
   project: "bmi/opendesk/tooling/gitlab-config"
-  ref: "fix/subcharts"
+  ref: "v2.5.1"
   file:
     - "ci/common/lint.yml"
     - "ci/helm/helm-lint.yml"
