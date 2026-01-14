@@ -13,13 +13,13 @@ To install the chart with the release name `my-release`, you have two options:
 ### Install via Repository
 ```console
 helm repo add opendesk-impress https://gitlab.opencode.de/api/v4/projects/5478/packages/helm/stable
-helm install my-release --version 1.0.2 opendesk-impress/y-provider
+helm install my-release --version 1.0.4 opendesk-impress/y-provider
 ```
 
 ### Install via OCI Registry
 ```console
 helm repo add opendesk-impress oci://registry.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress
-helm install my-release --version 1.0.2 opendesk-impress/y-provider
+helm install my-release --version 1.0.4 opendesk-impress/y-provider
 ```
 
 ## Requirements

@@ -1,3 +1,10 @@
+## [1.0.4](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.0.3...v1.0.4) (2026-01-14)
+
+
+### Bug Fixes
+
+* Bump copyright headers ([57c80a4](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/57c80a40c58c55396cdb6e5f8d38797b5b5bc8a3))
+
 ## [1.0.3](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.0.2...v1.0.3) (2026-01-13)
 
 
