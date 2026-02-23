@@ -1,0 +1,75 @@
+{{/*
+SPDX-FileCopyrightText: 2026 Zentrum für Digitale Souveränität der Öffentlichen Verwaltung (ZenDiS) GmbH
+SPDX-License-Identifier: Apache-2.0
+*/}}
+---
+kind: "ConfigMap"
+apiVersion: "v1"
+metadata:
+  name: "{{ include "common.names.fullname" . }}-mediagateway"
+  labels:
+    {{- include "common.labels.standard" . | nindent 4 }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+data:
+  default.conf.template: |
+    error_log /dev/stderr {{ .Values.impressMediaGateway.loglevel }};
+
+    server {
+        listen 8082;
+        server_name ${IMPRESS_MEDIAGW_IMPRESS_FQDN};
+
+        # Match /media/<anything>
+        location ~ ^/media/(.*)$ {
+
+            auth_request /_auth;
+
+            # Capture auth response headers
+            auth_request_set $auth_authorization $upstream_http_authorization;
+            auth_request_set $auth_amz_date $upstream_http_x_amz_date;
+            auth_request_set $auth_amz_sha $upstream_http_x_amz_content_sha256;
+
+            rewrite ^/media/(.*)$ /notes/$1 break;
+
+            proxy_pass https://${IMPRESS_MEDIAGW_OBJECTSTORE_FQDN}:${IMPRESS_MEDIAGW_OBJECTSTORE_PORT};
+
+            proxy_ssl_server_name on;
+
+            proxy_set_header Host ${IMPRESS_MEDIAGW_OBJECTSTORE_FQDN};
+
+            # Forward auth headers to objectstore
+            proxy_set_header Authorization $auth_authorization;
+            proxy_set_header X-Amz-Date $auth_amz_date;
+            proxy_set_header X-Amz-Content-SHA256 $auth_amz_sha;
+
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+
+        # ---- AUTH ENDPOINT ----
+        location = /_auth {
+            internal;
+
+            # Route directly to the internal backend service (avoids hairpin through public FQDN/Ingress)
+            proxy_pass http://${IMPRESS_MEDIAGW_BACKEND_HOST}:${IMPRESS_MEDIAGW_BACKEND_PORT}/api/v1.0/documents/media-auth/;
+
+            proxy_pass_request_body off;
+            proxy_set_header Content-Length "";
+            proxy_set_header Host ${IMPRESS_MEDIAGW_IMPRESS_FQDN};
+            proxy_set_header X-Original-URL $request_uri;
+            proxy_set_header X-Forwarded-Proto "https";
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Host ${IMPRESS_MEDIAGW_IMPRESS_FQDN};
+
+            # Forward auth headers back
+            proxy_pass_header Authorization;
+            proxy_pass_header X-Amz-Date;
+            proxy_pass_header X-Amz-Content-SHA256;
+        }
+    }
+
+...

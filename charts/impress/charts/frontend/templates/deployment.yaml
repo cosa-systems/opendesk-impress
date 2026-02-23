@@ -26,6 +26,7 @@ spec:
   template:
     metadata:
       annotations:
+        checksum/configmap-mediagateway: {{ include (print $.Template.BasePath "/configmap-mediagateway.yaml") . | sha256sum }}
         {{- if .Values.podAnnotations }}
         {{- include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" .) | nindent 8 }}
         {{- end }}
@@ -34,12 +35,12 @@ spec:
     spec:
       {{- if or .Values.imagePullSecrets .Values.global.imagePullSecrets }}
       imagePullSecrets:
-        {{- range .Values.global.imagePullSecrets }}
+      {{- range .Values.global.imagePullSecrets }}
         - name: "{{ . }}"
-        {{- end }}
-        {{- range .Values.imagePullSecrets }}
+      {{- end }}
+      {{- range .Values.imagePullSecrets }}
         - name: "{{ . }}"
-        {{- end }}
+      {{- end }}
       {{- end }}
       {{- if .Values.affinity }}
       affinity: {{- include "common.tplvalues.render" (dict "value" .Values.affinity "context" .) | nindent 8 }}
@@ -68,7 +69,7 @@ spec:
           securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
           {{- end }}
           image: "{{ coalesce .Values.image.registry .Values.global.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.imagePullPolicy }}
+          imagePullPolicy: {{ coalesce .Values.image.pullPolicy .Values.global.imagePullPolicy | quote }}
           env:
             - name: "PORT"
               value: {{ .Values.configuration.port | quote }}
@@ -90,13 +91,67 @@ spec:
           volumeMounts:
             - name: "tmp"
               mountPath: "/tmp"
-            {{- if .Values.extraVolumeMounts }}
+          {{- if .Values.extraVolumeMounts }}
             {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" .) | nindent 12 }}
+          {{- end }}
+        - name: {{ printf "%s-media-gateway" (include "common.names.fullname" .) | quote }}
+          {{- if .Values.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          image: "{{ coalesce .Values.impressMediaGateway.image.registry .Values.global.imageRegistry }}/{{ .Values.impressMediaGateway.image.repository }}:{{ .Values.impressMediaGateway.image.tag }}"
+          imagePullPolicy: {{ coalesce .Values.impressMediaGateway.image.pullPolicy .Values.global.imagePullPolicy | quote }}
+          env:
+            - name: "IMPRESS_MEDIAGW_IMPRESS_FQDN"
+              value: {{ .Values.global.fqdn | quote }}
+            - name: "IMPRESS_MEDIAGW_BACKEND_HOST"
+              value: {{ .Values.configuration.backendHost | quote }}
+            - name: "IMPRESS_MEDIAGW_BACKEND_PORT"
+              value: {{ .Values.configuration.backendPort | quote }}
+            - name: "IMPRESS_MEDIAGW_OBJECTSTORE_FQDN"
+              value: {{ .Values.configuration.objectStoreHost | quote }}
+            - name: "IMPRESS_MEDIAGW_OBJECTSTORE_PORT"
+              value: {{ .Values.configuration.objectStorePort | quote }}
+          {{- with .Values.impressMediaGateway.extraEnvVars }}
+            {{- . | toYaml | nindent 12 }}
+          {{- end }}
+          ports:
+            {{- range $key, $value := .Values.impressMediaGateway.service.ports }}
+            - name: {{ $key }}
+              containerPort: {{ $value.containerPort }}
+              protocol: {{ $value.protocol | default "TCP" | quote }}
             {{- end }}
+          {{- if .Values.impressMediaGateway.resources }}
+          resources: {{- include "common.tplvalues.render" (dict "value" .Values.impressMediaGateway.resources "context" .) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.impressMediaGateway.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.impressMediaGateway.lifecycleHooks "context" .) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: "nginx-templates"
+              mountPath: "/etc/nginx/templates"
+            - name: "nginx-cache"
+              mountPath: "/var/cache/nginx"
+            - name: "nginx-run"
+              mountPath: "/var/run"
+            - name: "nginx-conf"
+              mountPath: "/etc/nginx/conf.d"
+          {{- if .Values.impressMediaGateway.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.impressMediaGateway.extraVolumeMounts "context" .) | nindent 12 }}
+          {{- end }}
       volumes:
         - name: "tmp"
           emptyDir: {}
-        {{- if .Values.extraVolumes }}
+        - name: "nginx-templates"
+          configMap:
+            name: "{{ include "common.names.fullname" . }}-mediagateway"
+        - name: "nginx-cache"
+          emptyDir: {}
+        - name: "nginx-run"
+          emptyDir: {}
+        - name: "nginx-conf"
+          emptyDir: {}
+      {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes  "context" .) | nindent 8 }}
-        {{- end }}
+      {{- end }}
+
 ...
