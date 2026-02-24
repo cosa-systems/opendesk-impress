@@ -13,13 +13,13 @@ To install the chart with the release name `my-release`, you have two options:
 ### Install via Repository
 ```console
 helm repo add opendesk-impress https://gitlab.opencode.de/api/v4/projects/5478/packages/helm/stable
-helm install my-release --version 1.0.4 opendesk-impress/frontend
+helm install my-release --version 1.0.5 opendesk-impress/frontend
 ```
 
 ### Install via OCI Registry
 ```console
 helm repo add opendesk-impress oci://registry.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress
-helm install my-release --version 1.0.4 opendesk-impress/frontend
+helm install my-release --version 1.0.5 opendesk-impress/frontend
 ```
 
 ## Requirements
@@ -38,9 +38,6 @@ helm install my-release --version 1.0.4 opendesk-impress/frontend
 | configuration.objectStoreBucketName | string | `"notes"` | Object Store Bucket name |
 | configuration.objectStoreHost | string | `""` | Object Store Host |
 | configuration.port | int | `8080` | Container port to listen on |
-| configuration.publicApiOrigin | string | `""` | API origin, defaults to `https://<global.fqdn>` |
-| configuration.publicMediaUrl | string | `""` | media url, defaults to `https://<objectstorehost>` |
-| configuration.publicYProviderUrl | string | `""` | Y Provider websocket URL, defaults to `wss://<global.fqdn>/ws` |
 | containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Enable container privileged escalation. |
 | containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Security capabilities for container. |
 | containerSecurityContext.enabled | bool | `true` | Enable security context. |

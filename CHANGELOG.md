@@ -1,3 +1,10 @@
+## [1.0.5](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.0.4...v1.0.5) (2026-02-24)
+
+
+### Bug Fixes
+
+* **frontend:** Remove unused variables ([2aa98b6](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/2aa98b6a88a9c114a39c0ddc4f2ebf18fc3fad7a))
+
 ## [1.0.4](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.0.3...v1.0.4) (2026-01-14)
 
 
