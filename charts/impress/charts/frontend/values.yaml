@@ -366,10 +366,4 @@ configuration:
   objectStoreBucketName: "notes"
   # -- Container port to listen on
   port: 8080
-  # -- API origin, defaults to `https://<global.fqdn>`
-  publicApiOrigin: ""
-  # -- media url, defaults to `https://<objectstorehost>`
-  publicMediaUrl: ""
-  # -- Y Provider websocket URL, defaults to `wss://<global.fqdn>/ws`
-  publicYProviderUrl: ""
 ...

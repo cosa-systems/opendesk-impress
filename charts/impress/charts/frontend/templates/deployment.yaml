@@ -70,12 +70,6 @@ spec:
           image: "{{ coalesce .Values.image.registry .Values.global.imageRegistry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.imagePullPolicy }}
           env:
-            - name: "NEXT_PUBLIC_API_ORIGIN"
-              value: {{ .Values.configuration.publicApiOrigin | default (printf "https://%s" .Values.global.fqdn) | quote }}
-            - name: "NEXT_PUBLIC_MEDIA_URL"
-              value: {{ .Values.configuration.publicMediaUrl | default (printf "https://%s" .Values.configuration.objectStoreHost) | quote }}
-            - name: "NEXT_PUBLIC_Y_PROVIDER_URL"
-              value: {{ .Values.configuration.publicYProviderUrl | default (printf "wss://%s/ws" .Values.global.fqdn) | quote }}
             - name: "PORT"
               value: {{ .Values.configuration.port | quote }}
           {{- with .Values.extraEnvVars }}
