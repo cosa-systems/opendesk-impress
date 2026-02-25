@@ -101,16 +101,6 @@ spec:
           image: "{{ coalesce .Values.impressMediaGateway.image.registry .Values.global.imageRegistry }}/{{ .Values.impressMediaGateway.image.repository }}:{{ .Values.impressMediaGateway.image.tag }}"
           imagePullPolicy: {{ coalesce .Values.impressMediaGateway.image.pullPolicy .Values.global.imagePullPolicy | quote }}
           env:
-            - name: "IMPRESS_MEDIAGW_IMPRESS_FQDN"
-              value: {{ .Values.global.fqdn | quote }}
-            - name: "IMPRESS_MEDIAGW_BACKEND_HOST"
-              value: {{ .Values.configuration.backendHost | quote }}
-            - name: "IMPRESS_MEDIAGW_BACKEND_PORT"
-              value: {{ .Values.configuration.backendPort | quote }}
-            - name: "IMPRESS_MEDIAGW_OBJECTSTORE_FQDN"
-              value: {{ .Values.configuration.objectStoreHost | quote }}
-            - name: "IMPRESS_MEDIAGW_OBJECTSTORE_PORT"
-              value: {{ .Values.configuration.objectStorePort | quote }}
           {{- with .Values.impressMediaGateway.extraEnvVars }}
             {{- . | toYaml | nindent 12 }}
           {{- end }}
@@ -142,14 +132,14 @@ spec:
         - name: "tmp"
           emptyDir: {}
         - name: "nginx-templates"
-          configMap:
-            name: "{{ include "common.names.fullname" . }}-mediagateway"
+          emptyDir: {}
         - name: "nginx-cache"
           emptyDir: {}
         - name: "nginx-run"
           emptyDir: {}
         - name: "nginx-conf"
-          emptyDir: {}
+          configMap:
+            name: "{{ include "common.names.fullname" . }}-mediagateway"
       {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes  "context" .) | nindent 8 }}
       {{- end }}

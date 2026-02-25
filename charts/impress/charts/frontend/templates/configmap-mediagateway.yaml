@@ -21,7 +21,7 @@ data:
 
     server {
         listen 8082;
-        server_name ${IMPRESS_MEDIAGW_IMPRESS_FQDN};
+        server_name {{ .Values.global.fqdn }};
 
         # Match /media/<anything>
         location ~ ^/media/(.*)$ {
@@ -33,13 +33,11 @@ data:
             auth_request_set $auth_amz_date $upstream_http_x_amz_date;
             auth_request_set $auth_amz_sha $upstream_http_x_amz_content_sha256;
 
-            rewrite ^/media/(.*)$ /notes/$1 break;
-
-            proxy_pass https://${IMPRESS_MEDIAGW_OBJECTSTORE_FQDN}:${IMPRESS_MEDIAGW_OBJECTSTORE_PORT};
+            proxy_pass https://{{ .Values.configuration.objectStoreHost }}:{{ .Values.configuration.objectStorePort }}/{{ .Values.configuration.objectStoreBucketName }}/$1;
 
             proxy_ssl_server_name on;
 
-            proxy_set_header Host ${IMPRESS_MEDIAGW_OBJECTSTORE_FQDN};
+            proxy_set_header Host {{ .Values.configuration.objectStoreHost }};
 
             # Forward auth headers to objectstore
             proxy_set_header Authorization $auth_authorization;
@@ -55,15 +53,15 @@ data:
             internal;
 
             # Route directly to the internal backend service (avoids hairpin through public FQDN/Ingress)
-            proxy_pass http://${IMPRESS_MEDIAGW_BACKEND_HOST}:${IMPRESS_MEDIAGW_BACKEND_PORT}/api/v1.0/documents/media-auth/;
+            proxy_pass http://{{ .Values.configuration.backendHost }}:{{ .Values.configuration.backendPort }}/api/v1.0/documents/media-auth/;
 
             proxy_pass_request_body off;
             proxy_set_header Content-Length "";
-            proxy_set_header Host ${IMPRESS_MEDIAGW_IMPRESS_FQDN};
+            proxy_set_header Host {{ .Values.global.fqdn }};
             proxy_set_header X-Original-URL $request_uri;
             proxy_set_header X-Forwarded-Proto "https";
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Host ${IMPRESS_MEDIAGW_IMPRESS_FQDN};
+            proxy_set_header X-Forwarded-Host {{ .Values.global.fqdn }};
 
             # Forward auth headers back
             proxy_pass_header Authorization;
