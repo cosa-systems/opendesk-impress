@@ -189,6 +189,11 @@ impressMediaGateway:
   # Ref.: https://docs.nginx.com/nginx/admin-guide/monitoring/logging/
   loglevel: "debug"
 
+  # -- Set nginx worker_processes for Media Gateway
+  #
+  # Ref.: https://nginx.org/en/docs/ngx_core_module.html#worker_processes
+  workerProcesses: "4"
+
   # Configure resource requests and limits.
   #
   # Ref: https://kubernetes.io/docs/user-guide/compute-resources/

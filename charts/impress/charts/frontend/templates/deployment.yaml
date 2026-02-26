@@ -117,12 +117,13 @@ spec:
           lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.impressMediaGateway.lifecycleHooks "context" .) | nindent 12 }}
           {{- end }}
           volumeMounts:
-            - name: "nginx-templates"
-              mountPath: "/etc/nginx/templates"
             - name: "nginx-cache"
               mountPath: "/var/cache/nginx"
             - name: "nginx-run"
               mountPath: "/var/run"
+            - name: "nginx-main-conf"
+              mountPath: "/etc/nginx/nginx.conf"
+              subPath: "nginx.conf"
             - name: "nginx-conf"
               mountPath: "/etc/nginx/conf.d"
           {{- if .Values.impressMediaGateway.extraVolumeMounts }}
@@ -131,15 +132,22 @@ spec:
       volumes:
         - name: "tmp"
           emptyDir: {}
-        - name: "nginx-templates"
-          emptyDir: {}
         - name: "nginx-cache"
           emptyDir: {}
         - name: "nginx-run"
           emptyDir: {}
+        - name: "nginx-main-conf"
+          configMap:
+            name: "{{ include "common.names.fullname" . }}-mediagateway"
+            items:
+              - key: "nginx.conf"
+                path: "nginx.conf"
         - name: "nginx-conf"
           configMap:
             name: "{{ include "common.names.fullname" . }}-mediagateway"
+            items:
+              - key: "default.conf.template"
+                path: "default.conf.template"
       {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes  "context" .) | nindent 8 }}
       {{- end }}
