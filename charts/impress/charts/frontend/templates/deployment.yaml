@@ -26,7 +26,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/configmap-mediagateway: {{ include (print $.Template.BasePath "/configmap-mediagateway.yaml") . | sha256sum }}
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         {{- if .Values.podAnnotations }}
         {{- include "common.tplvalues.render" (dict "value" .Values.podAnnotations "context" .) | nindent 8 }}
         {{- end }}
@@ -82,6 +82,38 @@ spec:
               containerPort: {{ $value.containerPort }}
               protocol: {{ $value.protocol }}
             {{- end }}
+          {{- if .Values.probes.startup.enabled }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.probes.startup.httpGet.path | quote }}
+              port: {{ .Values.probes.startup.httpGet.port | quote }}
+            periodSeconds: {{ .Values.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.startup.failureThreshold }}
+            successThreshold: {{ .Values.probes.startup.successThreshold }}
+          {{- end }}
+          {{- if .Values.probes.liveness.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.probes.liveness.httpGet.path | quote }}
+              port: {{ .Values.probes.liveness.httpGet.port | quote }}
+            initialDelaySeconds: {{ .Values.probes.liveness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.liveness.failureThreshold }}
+            successThreshold: {{ .Values.probes.liveness.successThreshold }}
+          {{- end }}
+          {{- if .Values.probes.readiness.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.probes.readiness.httpGet.path | quote }}
+              port: {{ .Values.probes.readiness.httpGet.port | quote }}
+            initialDelaySeconds: {{ .Values.probes.readiness.initialDelaySeconds }}
+            periodSeconds: {{ .Values.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.probes.readiness.failureThreshold }}
+            successThreshold: {{ .Values.probes.readiness.successThreshold }}
+          {{- end }}
           {{- if .Values.resources }}
           resources: {{- include "common.tplvalues.render" (dict "value" .Values.resources "context" .) | nindent 12 }}
           {{- end }}
@@ -89,67 +121,42 @@ spec:
           lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.lifecycleHooks "context" .) | nindent 12 }}
           {{- end }}
           volumeMounts:
+            - name: "cache"
+              mountPath: "/var/cache/nginx"
+            - name: "run"
+              mountPath: "/run"
             - name: "tmp"
               mountPath: "/tmp"
-          {{- if .Values.extraVolumeMounts }}
-            {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" .) | nindent 12 }}
-          {{- end }}
-        - name: {{ printf "%s-media-gateway" (include "common.names.fullname" .) | quote }}
-          {{- if .Values.containerSecurityContext.enabled }}
-          securityContext: {{- omit .Values.containerSecurityContext "enabled" | toYaml | nindent 12 }}
-          {{- end }}
-          image: "{{ coalesce .Values.impressMediaGateway.image.registry .Values.global.imageRegistry }}/{{ .Values.impressMediaGateway.image.repository }}:{{ .Values.impressMediaGateway.image.tag }}"
-          imagePullPolicy: {{ coalesce .Values.impressMediaGateway.image.pullPolicy .Values.global.imagePullPolicy | quote }}
-          env:
-          {{- with .Values.impressMediaGateway.extraEnvVars }}
-            {{- . | toYaml | nindent 12 }}
-          {{- end }}
-          ports:
-            {{- range $key, $value := .Values.impressMediaGateway.service.ports }}
-            - name: {{ $key }}
-              containerPort: {{ $value.containerPort }}
-              protocol: {{ $value.protocol | default "TCP" | quote }}
-            {{- end }}
-          {{- if .Values.impressMediaGateway.resources }}
-          resources: {{- include "common.tplvalues.render" (dict "value" .Values.impressMediaGateway.resources "context" .) | nindent 12 }}
-          {{- end }}
-          {{- if .Values.impressMediaGateway.lifecycleHooks }}
-          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.impressMediaGateway.lifecycleHooks "context" .) | nindent 12 }}
-          {{- end }}
-          volumeMounts:
-            - name: "nginx-cache"
-              mountPath: "/var/cache/nginx"
-            - name: "nginx-run"
-              mountPath: "/var/run"
             - name: "nginx-main-conf"
               mountPath: "/etc/nginx/nginx.conf"
               subPath: "nginx.conf"
             - name: "nginx-conf"
               mountPath: "/etc/nginx/conf.d"
-          {{- if .Values.impressMediaGateway.extraVolumeMounts }}
-            {{- include "common.tplvalues.render" (dict "value" .Values.impressMediaGateway.extraVolumeMounts "context" .) | nindent 12 }}
+          {{- if .Values.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumeMounts "context" .) | nindent 12 }}
           {{- end }}
       volumes:
+        - name: "cache"
+          emptyDir: {}
+        - name: "run"
+          emptyDir: {}
         - name: "tmp"
-          emptyDir: {}
-        - name: "nginx-cache"
-          emptyDir: {}
-        - name: "nginx-run"
           emptyDir: {}
         - name: "nginx-main-conf"
           configMap:
-            name: "{{ include "common.names.fullname" . }}-mediagateway"
+            name: "{{ include "common.names.fullname" . }}"
             items:
               - key: "nginx.conf"
                 path: "nginx.conf"
         - name: "nginx-conf"
           configMap:
-            name: "{{ include "common.names.fullname" . }}-mediagateway"
+            name: "{{ include "common.names.fullname" . }}"
             items:
-              - key: "default.conf.template"
-                path: "default.conf.template"
+              - key: "default.conf"
+                path: "default.conf"
       {{- if .Values.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes  "context" .) | nindent 8 }}
       {{- end }}
 
 ...
+

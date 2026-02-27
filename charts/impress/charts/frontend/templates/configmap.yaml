@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 kind: "ConfigMap"
 apiVersion: "v1"
 metadata:
-  name: "{{ include "common.names.fullname" . }}-mediagateway"
+  name: "{{ include "common.names.fullname" . }}"
   labels:
     {{- include "common.labels.standard" . | nindent 4 }}
     {{- if .Values.commonLabels }}
@@ -16,10 +16,35 @@ metadata:
   annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
   {{- end }}
 data:
-  default.conf.template: |
+  default.conf: |
     server {
-        listen 8082;
+        ### START: taken from https://github.com/suitenumerique/docs/blob/main/src/frontend/apps/impress/conf/default.conf ###
         server_name {{ .Values.global.fqdn }};
+        root /usr/share/nginx/html;
+        listen 8080;
+        error_page 404 /404.html;
+
+        location / {
+            try_files $uri index.html $uri/index.html =404;
+            add_header X-Frame-Options DENY always;
+        }
+
+        location ~ "^/docs/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/?$" {
+            try_files $uri /docs/[id]/index.html;
+            add_header X-Frame-Options DENY always;
+        }
+
+        location = /404.html {
+            internal;
+        }
+
+        # Health check endpoint for Kubernetes probes
+        location = /healthz {
+            access_log off;
+            return 200 "ok";
+            add_header Content-Type text/plain;
+        }
+        ### END
 
         # Match /media/<anything>
         location ~ ^/media/(.*)$ {
@@ -31,7 +56,12 @@ data:
             auth_request_set $auth_amz_date $upstream_http_x_amz_date;
             auth_request_set $auth_amz_sha $upstream_http_x_amz_content_sha256;
 
-            proxy_pass https://{{ .Values.configuration.objectStoreHost }}:{{ .Values.configuration.objectStorePort }}/{{ .Values.configuration.objectStoreBucketName }}/$1;
+            # Rewrite URI to object store path; using rewrite+break with a static
+            # proxy_pass (no URI, no variables) so nginx resolves the hostname at
+            # config load time via /etc/resolv.conf — no explicit resolver needed.
+            rewrite ^/media/(.*)$ /{{ .Values.configuration.objectStoreBucketName }}/$1 break;
+
+            proxy_pass https://{{ .Values.configuration.objectStoreHost }}:{{ .Values.configuration.objectStorePort }};
 
             proxy_ssl_server_name on;
 
@@ -68,8 +98,8 @@ data:
         }
     }
   nginx.conf: |
-    worker_processes  {{ .Values.impressMediaGateway.workerProcesses }};
-    error_log  /var/log/nginx/error.log {{ .Values.impressMediaGateway.loglevel }};
+    worker_processes  {{ .Values.configuration.webserver.workerProcesses }};
+    error_log  /var/log/nginx/error.log {{ .Values.configuration.webserver.loglevel }};
     pid        /run/nginx.pid;
 
     events {

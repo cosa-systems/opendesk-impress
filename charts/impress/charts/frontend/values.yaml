@@ -96,154 +96,6 @@ image:
 #
 imagePullSecrets: []
 
-# Impress Media Gateway
-impressMediaGateway:
-  # -- Array with extra environment variables to add to containers.
-  #
-  # extraEnvVars:
-  #   - name: FOO
-  #     value: "bar"
-  #
-  extraEnvVars: []
-
-  # -- Optionally specify an extra list of additional volumeMounts.
-  extraVolumeMounts: []
-
-  # Additional container image section for media gateway.
-  image:
-    # -- Container registry address. This setting has higher precedence than global.registry.
-    registry: ""
-
-    # -- Container repository string.
-    repository: "nginx"
-
-    # -- Define an ImagePullPolicy.
-    #
-    # Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
-    #
-    # "IfNotPresent" => The image is pulled only if it is not already present locally.
-    # "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to
-    #             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached
-    #             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved
-    #             digest, and uses that image to launch the container.
-    # "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the
-    #            kubelet attempts to start the container; otherwise, startup fails.
-    #
-    imagePullPolicy: "IfNotPresent"
-
-    # -- Define image tag.
-    tag: "stable-alpine3.23-slim@sha256:a00b591ab482fcfcc4a971a5efd04ebdbb6f9fe8ffe95dec9009019b8c0582e8"
-
-  # Define and create Kubernetes Ingress.
-  #
-  # Ref.: https://kubernetes.io/docs/concepts/services-networking/ingress/
-  ingress:
-    # -- Enable creation of Ingress.
-    enabled: true
-
-    # -- Use default annotations for nginx, if set to false you probably need to specify your own annotations
-    defaultAnnotations: true
-
-    # -- Define the Fully Qualified Domain Name (FQDN) where application should be reachable.
-    host: ""
-
-    # -- Define the Ingress path.
-    path: "/media/"
-
-    # -- Each path in an Ingress is required to have a corresponding path type.
-    # Paths that do not include an explicit pathType will fail validation.
-    # There are three supported path types:
-    #
-    # "ImplementationSpecific" => With this path type, matching is up to the IngressClass. Implementations can treat this
-    #                             as a separate pathType or treat it identically to Prefix or Exact path types.
-    # "Exact" => Matches the URL path exactly and with case sensitivity.
-    # "Prefix" => Matches based on a URL path prefix split by /.
-    #
-    # Ref.: https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types
-    pathType: "Prefix"
-
-    # -- The Ingress controller class name.
-    ingressClassName: ""
-
-    # -- Define custom ingress annotations.
-    # annotations:
-    #   nginx.ingress.kubernetes.io/rewrite-target: /
-    annotations: {}
-
-    # -- Secure an Ingress by specifying a Secret that contains a TLS private key and certificate.
-    #
-    # Ref.: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
-    tls:
-      # -- Enable TLS/SSL/HTTPS for Ingress.
-      enabled: true
-
-      # -- The name of the kubernetes secret which contains a TLS private key and certificate.
-      # Hint: This secret is not created by this chart and must be provided.
-      secretName: ""
-
-  # -- Lifecycle to automate configuration before or after startup.
-  lifecycleHooks: {}
-
-  # -- Set nginx loglevel for Media Gateway
-  #
-  # Ref.: https://docs.nginx.com/nginx/admin-guide/monitoring/logging/
-  loglevel: "debug"
-
-  # -- Set nginx worker_processes for Media Gateway
-  #
-  # Ref.: https://nginx.org/en/docs/ngx_core_module.html#worker_processes
-  workerProcesses: "4"
-
-  # Configure resource requests and limits.
-  #
-  # Ref: https://kubernetes.io/docs/user-guide/compute-resources/
-  resources:
-    limits:
-      # -- The max number of CPUs to consume.
-      cpu: 1
-      # -- The max number of RAM to consume.
-      memory: "512Gi"
-    requests:
-      # -- The number of CPUs which has to be available on the scheduled node.
-      cpu: "100m"
-      # -- The number of RAM which has to be available on the scheduled node.
-      memory: "128Mi"
-
-  # Define and create Kubernetes Service.
-  #
-  # Ref.: https://kubernetes.io/docs/concepts/services-networking/service
-  service:
-    # -- Additional custom annotations.
-    annotations: {}
-
-    # -- Enable kubernetes service creation.
-    enabled: true
-
-    # "ClusterIP" => Exposes the Service on a cluster-internal IP. Choosing this value makes the Service only reachable
-    #                from within the cluster. This is the default that is used if you don't explicitly specify a type for
-    #                a Service.
-    # "NodePort" => Exposes the Service on each Node's IP at a static port (the NodePort). To make the node port
-    #               available, Kubernetes sets up a cluster IP address, the same as if you had requested a Service of
-    #               type: ClusterIP.
-    # "LoadBalancer" => Exposes the Service externally using a cloud provider's load balancer.
-    #
-    # Ref.: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
-
-    # -- Choose the kind of Service, one of "ClusterIP", "NodePort" or "LoadBalancer".
-    type: "ClusterIP"
-
-    # Define the ports of Service.
-    # You can set the port value to an arbitrary value, it will map the container port by name.
-    #
-    ports:
-      http-gw:
-        # -- Accessible port.
-        port: 80
-        # -- Internal port.
-        containerPort: 8082
-        # -- Service protocol.
-        protocol: "TCP"
-
 # Define and create Kubernetes Ingress.
 #
 # Ref.: https://kubernetes.io/docs/concepts/services-networking/ingress/
@@ -327,6 +179,68 @@ podSecurityContext:
 
   # -- Change ownership and permission of the volume before being exposed inside a Pod.
   fsGroupChangePolicy: "Always"
+
+# Probes configuration.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+probes:
+  # Liveness probe to detect if the container is still running.
+  liveness:
+    # -- Enable liveness probe.
+    enabled: true
+    httpGet:
+      # -- Path for the liveness probe.
+      path: "/healthz"
+      # -- Port name for the liveness probe.
+      port: "http"
+    # -- Number of seconds after the container has started before probes are initiated.
+    initialDelaySeconds: 10
+    # -- How often (in seconds) to perform the probe.
+    periodSeconds: 10
+    # -- Number of seconds after which the probe times out.
+    timeoutSeconds: 5
+    # -- Minimum consecutive failures for the probe to be considered failed.
+    failureThreshold: 3
+    # -- Minimum consecutive successes for the probe to be considered successful.
+    successThreshold: 1
+
+  # Readiness probe to determine if the pod is ready to receive traffic.
+  readiness:
+    # -- Enable readiness probe.
+    enabled: true
+    httpGet:
+      # -- Path for the readiness probe.
+      path: "/healthz"
+      # -- Port name for the readiness probe.
+      port: "http"
+    # -- Number of seconds after the container has started before probes are initiated.
+    initialDelaySeconds: 5
+    # -- How often (in seconds) to perform the probe.
+    periodSeconds: 5
+    # -- Number of seconds after which the probe times out.
+    timeoutSeconds: 3
+    # -- Minimum consecutive failures for the probe to be considered failed.
+    failureThreshold: 3
+    # -- Minimum consecutive successes for the probe to be considered successful.
+    successThreshold: 1
+
+  # Startup probe to handle slow container startups.
+  startup:
+    # -- Enable startup probe.
+    enabled: true
+    httpGet:
+      # -- Path for the startup probe.
+      path: "/healthz"
+      # -- Port name for the startup probe.
+      port: "http"
+    # -- How often (in seconds) to perform the probe.
+    periodSeconds: 5
+    # -- Number of seconds after which the probe times out.
+    timeoutSeconds: 3
+    # -- Minimum consecutive failures for the probe to be considered failed.
+    # Combined with periodSeconds, this gives the container 30s to start (6 * 5s).
+    failureThreshold: 6
+    # -- Minimum consecutive successes for the probe to be considered successful.
+    successThreshold: 1
 
 # -- Set the amount of replicas of deployment.
 replicaCount: 1
@@ -442,4 +356,16 @@ configuration:
   objectStoreBucketName: "notes"
   # -- Container port to listen on
   port: 8080
+  # -- Webserver specific configuration
+  webserver:
+    # -- nginx loglevel
+    #
+    # Ref.: https://docs.nginx.com/nginx/admin-guide/monitoring/logging/
+    loglevel: "debug"
+    # -- Set nginx worker_processes. Setting it to "auto" will spawn
+    # one process per vCPU on the K8s node, this can be too much in most cases.
+    #
+    # Ref.: https://nginx.org/en/docs/ngx_core_module.html#worker_processes
+    workerProcesses: "4"
+
 ...
