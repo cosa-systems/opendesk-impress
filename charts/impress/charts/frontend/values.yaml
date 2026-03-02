@@ -361,7 +361,7 @@ configuration:
     # -- nginx loglevel
     #
     # Ref.: https://docs.nginx.com/nginx/admin-guide/monitoring/logging/
-    loglevel: "debug"
+    loglevel: "info"
     # -- Set nginx worker_processes. Setting it to "auto" will spawn
     # one process per vCPU on the K8s node, this can be too much in most cases.
     #
