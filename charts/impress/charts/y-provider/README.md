@@ -13,13 +13,13 @@ To install the chart with the release name `my-release`, you have two options:
 ### Install via Repository
 ```console
 helm repo add opendesk-impress https://gitlab.opencode.de/api/v4/projects/5478/packages/helm/stable
-helm install my-release --version 1.0.5 opendesk-impress/y-provider
+helm install my-release --version 1.1.0 opendesk-impress/y-provider
 ```
 
 ### Install via OCI Registry
 ```console
 helm repo add opendesk-impress oci://registry.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress
-helm install my-release --version 1.0.5 opendesk-impress/y-provider
+helm install my-release --version 1.1.0 opendesk-impress/y-provider
 ```
 
 ## Requirements
@@ -51,16 +51,6 @@ helm install my-release --version 1.0.5 opendesk-impress/y-provider
 | extraVolumeMounts | list | `[]` | Optionally specify an extra list of additional volumeMounts. |
 | extraVolumes | list | `[]` | Optionally specify an extra list of additional volumes. |
 | fullnameOverride | string | `""` | Provide a name to substitute for the full names of resources. |
-| global.collaborationServerSecret.existingSecret.key | string | `"collaborationServerSecret"` | Key where collaboration server secret is stored |
-| global.collaborationServerSecret.existingSecret.name | string | `""` | Name of existing secret containing collaboration server secret, overrides provided value |
-| global.collaborationServerSecret.value | string | `""` | Value of collaboration server secret |
-| global.fqdn | string | `""` | fully qualified domain name of this impress instance |
-| global.imagePullSecrets | list | `[]` | Credentials to fetch images from private registry. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/  imagePullSecrets:   - "docker-registry"  |
-| global.imageRegistry | string | `"docker.io"` | Container registry address. |
-| global.tlsSecretName | string | `""` | TLS secret name |
-| global.yProviderApiKey.existingSecret.key | string | `"yProviderApiKey"` | Key where Y Provider API key is stored |
-| global.yProviderApiKey.existingSecret.name | string | `""` | Name of existing secret containing Y Provider API key, overrides provided value |
-| global.yProviderApiKey.value | string | `""` | Value of Y Provider API key |
 | image.imagePullPolicy | string | `"IfNotPresent"` | Define an ImagePullPolicy.  Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy  "IfNotPresent" => The image is pulled only if it is not already present locally. "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved             digest, and uses that image to launch the container. "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the            kubelet attempts to start the container; otherwise, startup fails.  |
 | image.registry | string | `"docker.io"` | Container registry address. This setting has higher precedence than global.registry. |
 | image.repository | string | `"lasuite/impress-y-provider"` | Container repository string. |

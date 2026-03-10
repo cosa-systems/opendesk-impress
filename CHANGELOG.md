@@ -1,3 +1,19 @@
+# [1.1.0](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.0.5...v1.1.0) (2026-03-10)
+
+
+### Bug Fixes
+
+* Remove global sections from sub charts ([56fc824](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/56fc824971f1dd3f3ea1fe8407a8e09a4e796692))
+* Review feedback, streamline mounts, add nginx.conf ([574a8a4](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/574a8a4baf45f8209424d9ff252289487c35fbd1))
+* Set default nginx loglevel to info ([39b4974](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/39b4974e867331b08c34db738ce64e535b0882ec))
+* Template configmap directly ([2e25a82](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/2e25a82aafb4bf6c40d67f1f3620eb2d0f18d5d4))
+
+
+### Features
+
+* Add nginx mediagateway ([729c3f3](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/729c3f3c954be74ef8742f0e3e568031976989fd))
+* Media proxy within the frontend nginx ([e761bbe](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/e761bbe97ea11793b0f3d4315fe302e9c31ee5ea))
+
 ## [1.0.5](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.0.4...v1.0.5) (2026-02-24)
 
 

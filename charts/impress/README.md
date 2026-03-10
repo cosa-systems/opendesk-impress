@@ -13,13 +13,13 @@ To install the chart with the release name `my-release`, you have two options:
 ### Install via Repository
 ```console
 helm repo add opendesk-impress https://gitlab.opencode.de/api/v4/projects/5478/packages/helm/stable
-helm install my-release --version 1.0.5 opendesk-impress/impress
+helm install my-release --version 1.1.0 opendesk-impress/impress
 ```
 
 ### Install via OCI Registry
 ```console
 helm repo add opendesk-impress oci://registry.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress
-helm install my-release --version 1.0.5 opendesk-impress/impress
+helm install my-release --version 1.1.0 opendesk-impress/impress
 ```
 
 ## Requirements
@@ -29,6 +29,7 @@ helm install my-release --version 1.0.5 opendesk-impress/impress
 |  | backend | * |
 |  | frontend | * |
 |  | y-provider | * |
+| https://charts.bitnami.com/bitnami | common | ^2.x.x |
 
 ## Values
 
@@ -38,6 +39,7 @@ helm install my-release --version 1.0.5 opendesk-impress/impress
 | global.collaborationServerSecret.existingSecret.name | string | `""` | Name of existing secret containing collaboration server secret, overrides provided value |
 | global.collaborationServerSecret.value | string | `""` | Value of collaboration server secret |
 | global.fqdn | string | `""` | fully qualified domain name of this impress instance |
+| global.imagePullPolicy | string | `"IfNotPresent"` | Define an ImagePullPolicy.  Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy  "IfNotPresent" => The image is pulled only if it is not already present locally. "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved             digest, and uses that image to launch the container. "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the            kubelet attempts to start the container; otherwise, startup fails.  |
 | global.imagePullSecrets | list | `[]` | Credentials to fetch images from private registry. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/  imagePullSecrets:   - "docker-registry"  |
 | global.imageRegistry | string | `"docker.io"` | Container registry address. |
 | global.tlsSecretName | string | `""` | TLS secret name |
@@ -237,9 +239,15 @@ helm install my-release --version 1.0.5 opendesk-impress/impress
 | frontend.additionalAnnotations | object | `{}` | Additional custom annotations to add to all deployed objects. |
 | frontend.additionalLabels | object | `{}` | Additional custom labels to add to all deployed objects. |
 | frontend.affinity | object | `{}` | Affinity for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity Note: podAffinityPreset, podAntiAffinityPreset, and nodeAffinityPreset will be ignored when it's set. |
+| frontend.configuration.backendHost | string | `"impress-backend"` | Internal backend service hostname (Kubernetes service DNS name, e.g. "impress-backend") |
+| frontend.configuration.backendPort | int | `80` | Internal backend service port |
 | frontend.configuration.objectStoreBucketName | string | `"notes"` | Object Store Bucket name |
 | frontend.configuration.objectStoreHost | string | `""` | Object Store Host |
+| frontend.configuration.objectStorePort | int | `443` | Object Store Port |
 | frontend.configuration.port | int | `8080` | Container port to listen on |
+| frontend.configuration.webserver | object | `{"loglevel":"info","workerProcesses":"4"}` | Webserver specific configuration |
+| frontend.configuration.webserver.loglevel | string | `"info"` | nginx loglevel  Ref.: https://docs.nginx.com/nginx/admin-guide/monitoring/logging/ |
+| frontend.configuration.webserver.workerProcesses | string | `"4"` | Set nginx worker_processes. Setting it to "auto" will spawn one process per vCPU on the K8s node, this can be too much in most cases.  Ref.: https://nginx.org/en/docs/ngx_core_module.html#worker_processes |
 | frontend.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Enable container privileged escalation. |
 | frontend.containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Security capabilities for container. |
 | frontend.containerSecurityContext.enabled | bool | `true` | Enable security context. |
@@ -267,16 +275,6 @@ helm install my-release --version 1.0.5 opendesk-impress/impress
 | frontend.ingress.tls | object | `{"enabled":true,"secretName":""}` | Secure an Ingress by specifying a Secret that contains a TLS private key and certificate.  Ref.: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls |
 | frontend.ingress.tls.enabled | bool | `true` | Enable TLS/SSL/HTTPS for Ingress. |
 | frontend.ingress.tls.secretName | string | `""` | The name of the kubernetes secret which contains a TLS private key and certificate. Hint: This secret is not created by this chart and must be provided. |
-| frontend.ingressMedia.annotations | object | `{}` | Define custom ingress annotations. annotations:   nginx.ingress.kubernetes.io/rewrite-target: / |
-| frontend.ingressMedia.defaultAnnotations | bool | `true` | Use default annotations for nginx, if set to false you probably need to specify your own annotations |
-| frontend.ingressMedia.enabled | bool | `true` | Enable creation of Ingress. |
-| frontend.ingressMedia.host | string | `""` | Define the Fully Qualified Domain Name (FQDN) where application should be reachable. |
-| frontend.ingressMedia.ingressClassName | string | `"nginx"` | The Ingress controller class name. |
-| frontend.ingressMedia.path | string | `"/media/(.*)"` | Define the Ingress path. |
-| frontend.ingressMedia.pathType | string | `"ImplementationSpecific"` | Each path in an Ingress is required to have a corresponding path type. Paths that do not include an explicit pathType will fail validation. There are three supported path types:  "ImplementationSpecific" => With this path type, matching is up to the IngressClass. Implementations can treat this                             as a separate pathType or treat it identically to Prefix or Exact path types. "Exact" => Matches the URL path exactly and with case sensitivity. "Prefix" => Matches based on a URL path prefix split by /.  Ref.: https://kubernetes.io/docs/concepts/services-networking/ingress/#path-types |
-| frontend.ingressMedia.tls | object | `{"enabled":true,"secretName":""}` | Secure an Ingress by specifying a Secret that contains a TLS private key and certificate.  Ref.: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls |
-| frontend.ingressMedia.tls.enabled | bool | `true` | Enable TLS/SSL/HTTPS for Ingress. |
-| frontend.ingressMedia.tls.secretName | string | `""` | The name of the kubernetes secret which contains a TLS private key and certificate. Hint: This secret is not created by this chart and must be provided. |
 | frontend.lifecycleHooks | object | `{}` | Lifecycle to automate configuration before or after startup. |
 | frontend.nameOverride | string | `""` | String to partially override release name. |
 | frontend.nodeSelector | object | `{}` | Node labels for pod assignment. Ref: https://kubernetes.io/docs/user-guide/node-selection/ |
@@ -289,6 +287,29 @@ helm install my-release --version 1.0.5 opendesk-impress/impress
 | frontend.podSecurityContext.enabled | bool | `true` | Enable security context. |
 | frontend.podSecurityContext.fsGroup | int | `1000` | If specified, all processes of the container are also part of the supplementary group. |
 | frontend.podSecurityContext.fsGroupChangePolicy | string | `"Always"` | Change ownership and permission of the volume before being exposed inside a Pod. |
+| frontend.probes.liveness.enabled | bool | `true` | Enable liveness probe. |
+| frontend.probes.liveness.failureThreshold | int | `3` | Minimum consecutive failures for the probe to be considered failed. |
+| frontend.probes.liveness.httpGet.path | string | `"/healthz"` | Path for the liveness probe. |
+| frontend.probes.liveness.httpGet.port | string | `"http"` | Port name for the liveness probe. |
+| frontend.probes.liveness.initialDelaySeconds | int | `10` | Number of seconds after the container has started before probes are initiated. |
+| frontend.probes.liveness.periodSeconds | int | `10` | How often (in seconds) to perform the probe. |
+| frontend.probes.liveness.successThreshold | int | `1` | Minimum consecutive successes for the probe to be considered successful. |
+| frontend.probes.liveness.timeoutSeconds | int | `5` | Number of seconds after which the probe times out. |
+| frontend.probes.readiness.enabled | bool | `true` | Enable readiness probe. |
+| frontend.probes.readiness.failureThreshold | int | `3` | Minimum consecutive failures for the probe to be considered failed. |
+| frontend.probes.readiness.httpGet.path | string | `"/healthz"` | Path for the readiness probe. |
+| frontend.probes.readiness.httpGet.port | string | `"http"` | Port name for the readiness probe. |
+| frontend.probes.readiness.initialDelaySeconds | int | `5` | Number of seconds after the container has started before probes are initiated. |
+| frontend.probes.readiness.periodSeconds | int | `5` | How often (in seconds) to perform the probe. |
+| frontend.probes.readiness.successThreshold | int | `1` | Minimum consecutive successes for the probe to be considered successful. |
+| frontend.probes.readiness.timeoutSeconds | int | `3` | Number of seconds after which the probe times out. |
+| frontend.probes.startup.enabled | bool | `true` | Enable startup probe. |
+| frontend.probes.startup.failureThreshold | int | `6` | Minimum consecutive failures for the probe to be considered failed. Combined with periodSeconds, this gives the container 30s to start (6 * 5s). |
+| frontend.probes.startup.httpGet.path | string | `"/healthz"` | Path for the startup probe. |
+| frontend.probes.startup.httpGet.port | string | `"http"` | Port name for the startup probe. |
+| frontend.probes.startup.periodSeconds | int | `5` | How often (in seconds) to perform the probe. |
+| frontend.probes.startup.successThreshold | int | `1` | Minimum consecutive successes for the probe to be considered successful. |
+| frontend.probes.startup.timeoutSeconds | int | `3` | Number of seconds after which the probe times out. |
 | frontend.replicaCount | int | `1` | Set the amount of replicas of deployment. |
 | frontend.resources.limits.cpu | int | `1` | The max number of CPUs to consume. |
 | frontend.resources.limits.memory | string | `"1Gi"` | The max number of RAM to consume. |
@@ -304,10 +325,6 @@ helm install my-release --version 1.0.5 opendesk-impress/impress
 | frontend.serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |
 | frontend.serviceAccount.create | bool | `true` | Enable creation of ServiceAccount for pod. |
 | frontend.serviceAccount.labels | object | `{}` | Additional custom labels for the ServiceAccount. |
-| frontend.serviceMedia.annotations | object | `{}` | Service Annotations |
-| frontend.serviceMedia.enabled | bool | `true` | Whether the media service is enabled |
-| frontend.serviceMedia.port | int | `443` | Objectstorage port |
-| frontend.serviceMedia.type | string | `"ExternalName"` | Type of media service |
 | frontend.terminationGracePeriodSeconds | string | `""` | In seconds, time the given to the pod needs to terminate gracefully. Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods |
 | frontend.tolerations | list | `[]` | Tolerations for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/ |
 | frontend.topologySpreadConstraints | list | `[]` | Topology spread constraints rely on node labels to identify the topology domain(s) that each Node is in. Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/  topologySpreadConstraints:   - maxSkew: 1     topologyKey: failure-domain.beta.kubernetes.io/zone     whenUnsatisfiable: DoNotSchedule |
