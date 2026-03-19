@@ -13,13 +13,13 @@ To install the chart with the release name `my-release`, you have two options:
 ### Install via Repository
 ```console
 helm repo add opendesk-impress https://gitlab.opencode.de/api/v4/projects/5478/packages/helm/stable
-helm install my-release --version 1.1.0 opendesk-impress/impress
+helm install my-release --version 1.1.1 opendesk-impress/impress
 ```
 
 ### Install via OCI Registry
 ```console
 helm repo add opendesk-impress oci://registry.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress
-helm install my-release --version 1.1.0 opendesk-impress/impress
+helm install my-release --version 1.1.1 opendesk-impress/impress
 ```
 
 ## Requirements
@@ -42,6 +42,19 @@ helm install my-release --version 1.1.0 opendesk-impress/impress
 | global.imagePullPolicy | string | `"IfNotPresent"` | Define an ImagePullPolicy.  Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy  "IfNotPresent" => The image is pulled only if it is not already present locally. "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved             digest, and uses that image to launch the container. "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the            kubelet attempts to start the container; otherwise, startup fails.  |
 | global.imagePullSecrets | list | `[]` | Credentials to fetch images from private registry. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/  imagePullSecrets:   - "docker-registry"  |
 | global.imageRegistry | string | `"docker.io"` | Container registry address. |
+| global.s3 | object | `{"accessKeyId":{"existingSecret":{"key":"awsS3AccessKeyId","name":""},"value":""},"bucketName":"notes","host":"","port":443,"regionName":"","secretAccessKey":{"existingSecret":{"key":"awsS3SecretAccessKey","name":""},"value":""}}` | S3-compatible object store configuration shared by backend and frontend. Setting values here overrides the individual backend/frontend sub-chart values. |
+| global.s3.accessKeyId | object | `{"existingSecret":{"key":"awsS3AccessKeyId","name":""},"value":""}` | S3 Access Key ID |
+| global.s3.accessKeyId.existingSecret.key | string | `"awsS3AccessKeyId"` | Key inside the existing secret. |
+| global.s3.accessKeyId.existingSecret.name | string | `""` | Name of an existing secret containing the Access Key ID; overrides value above. |
+| global.s3.accessKeyId.value | string | `""` | Plain-text value; ignored when existingSecret.name is set. |
+| global.s3.bucketName | string | `"notes"` | Bucket name. Must be identical between backend (AWS_STORAGE_BUCKET_NAME) and the frontend nginx media proxy — set it once here instead of in both sub-charts separately. |
+| global.s3.host | string | `""` | Hostname of the S3-compatible endpoint (e.g. s3.eu-central-2.wasabisys.com). Used by the frontend nginx proxy (Host header + proxy_pass) and to derive AWS_S3_ENDPOINT_URL for the backend. |
+| global.s3.port | int | `443` | Port of the S3-compatible endpoint. |
+| global.s3.regionName | string | `""` | S3 region name (AWS_S3_REGION_NAME). |
+| global.s3.secretAccessKey | object | `{"existingSecret":{"key":"awsS3SecretAccessKey","name":""},"value":""}` | S3 Secret Access Key |
+| global.s3.secretAccessKey.existingSecret.key | string | `"awsS3SecretAccessKey"` | Key inside the existing secret. |
+| global.s3.secretAccessKey.existingSecret.name | string | `""` | Name of an existing secret containing the Secret Access Key; overrides value above. |
+| global.s3.secretAccessKey.value | string | `""` | Plain-text value; ignored when existingSecret.name is set. |
 | global.tlsSecretName | string | `""` | TLS secret name |
 | global.yProviderApiKey.existingSecret.key | string | `"yProviderApiKey"` | Key where Y Provider API key is stored |
 | global.yProviderApiKey.existingSecret.name | string | `""` | Name of existing secret containing Y Provider API key, overrides provided value |
@@ -57,15 +70,6 @@ helm install my-release --version 1.1.0 opendesk-impress/impress
 | backend.configuration.ai.baseUrl | string | `""` | Base URL of AI |
 | backend.configuration.ai.model | string | `""` | AI Model |
 | backend.configuration.args | list | `[]` | Override default args |
-| backend.configuration.aws.endpointUrl | string | `""` | AWS endpoint URL |
-| backend.configuration.aws.regionName | string | `""` | S3 region name |
-| backend.configuration.aws.s3AccessKeyId.existingSecret.key | string | `"awsS3AccessKeyId"` | Key where S3 Access Key ID is stored |
-| backend.configuration.aws.s3AccessKeyId.existingSecret.name | string | `""` | Name of existing secret containing S3 Access Key Id, overrules provided value |
-| backend.configuration.aws.s3AccessKeyId.value | string | `""` | Value of S3 Access Key ID |
-| backend.configuration.aws.s3SecretAccessKey.existingSecret.key | string | `"awsS3SecretAccessKey"` | Key where S3 Secret Access Key is stored |
-| backend.configuration.aws.s3SecretAccessKey.existingSecret.name | string | `nil` | Name of existing secret containing S3 Secret Access Key, overrules provided value |
-| backend.configuration.aws.s3SecretAccessKey.value | string | `""` | Value of S3 Secret Access Key |
-| backend.configuration.aws.storageBucketName | string | `"notes"` | S3 bucket name |
 | backend.configuration.collaboration.apiUrl | string | `""` | Collaboration API URL |
 | backend.configuration.collaboration.wsUrl | string | `""` | Collaboration websocket URL |
 | backend.configuration.command | list | `[]` | Override default command |
@@ -241,9 +245,6 @@ helm install my-release --version 1.1.0 opendesk-impress/impress
 | frontend.affinity | object | `{}` | Affinity for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity Note: podAffinityPreset, podAntiAffinityPreset, and nodeAffinityPreset will be ignored when it's set. |
 | frontend.configuration.backendHost | string | `"impress-backend"` | Internal backend service hostname (Kubernetes service DNS name, e.g. "impress-backend") |
 | frontend.configuration.backendPort | int | `80` | Internal backend service port |
-| frontend.configuration.objectStoreBucketName | string | `"notes"` | Object Store Bucket name |
-| frontend.configuration.objectStoreHost | string | `""` | Object Store Host |
-| frontend.configuration.objectStorePort | int | `443` | Object Store Port |
 | frontend.configuration.port | int | `8080` | Container port to listen on |
 | frontend.configuration.webserver | object | `{"loglevel":"info","workerProcesses":"4"}` | Webserver specific configuration |
 | frontend.configuration.webserver.loglevel | string | `"info"` | nginx loglevel  Ref.: https://docs.nginx.com/nginx/admin-guide/monitoring/logging/ |

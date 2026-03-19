@@ -1,3 +1,10 @@
+## [1.1.1](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.1.0...v1.1.1) (2026-03-19)
+
+
+### Bug Fixes
+
+* Non default bucket names and s3 config consolidation ([4f705a8](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/4f705a87d056d630daa23c789b3d22a6479195cc))
+
 # [1.1.0](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.0.5...v1.1.0) (2026-03-10)
 
 

@@ -13,13 +13,13 @@ To install the chart with the release name `my-release`, you have two options:
 ### Install via Repository
 ```console
 helm repo add opendesk-impress https://gitlab.opencode.de/api/v4/projects/5478/packages/helm/stable
-helm install my-release --version 1.1.0 opendesk-impress/backend
+helm install my-release --version 1.1.1 opendesk-impress/backend
 ```
 
 ### Install via OCI Registry
 ```console
 helm repo add opendesk-impress oci://registry.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress
-helm install my-release --version 1.1.0 opendesk-impress/backend
+helm install my-release --version 1.1.1 opendesk-impress/backend
 ```
 
 ## Requirements
@@ -43,15 +43,6 @@ helm install my-release --version 1.1.0 opendesk-impress/backend
 | configuration.ai.baseUrl | string | `""` | Base URL of AI |
 | configuration.ai.model | string | `""` | AI Model |
 | configuration.args | list | `[]` | Override default args |
-| configuration.aws.endpointUrl | string | `""` | AWS endpoint URL |
-| configuration.aws.regionName | string | `""` | S3 region name |
-| configuration.aws.s3AccessKeyId.existingSecret.key | string | `"awsS3AccessKeyId"` | Key where S3 Access Key ID is stored |
-| configuration.aws.s3AccessKeyId.existingSecret.name | string | `""` | Name of existing secret containing S3 Access Key Id, overrules provided value |
-| configuration.aws.s3AccessKeyId.value | string | `""` | Value of S3 Access Key ID |
-| configuration.aws.s3SecretAccessKey.existingSecret.key | string | `"awsS3SecretAccessKey"` | Key where S3 Secret Access Key is stored |
-| configuration.aws.s3SecretAccessKey.existingSecret.name | string | `nil` | Name of existing secret containing S3 Secret Access Key, overrules provided value |
-| configuration.aws.s3SecretAccessKey.value | string | `""` | Value of S3 Secret Access Key |
-| configuration.aws.storageBucketName | string | `"notes"` | S3 bucket name |
 | configuration.collaboration.apiUrl | string | `""` | Collaboration API URL |
 | configuration.collaboration.wsUrl | string | `""` | Collaboration websocket URL |
 | configuration.command | list | `[]` | Override default command |

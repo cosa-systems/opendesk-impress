@@ -13,13 +13,13 @@ To install the chart with the release name `my-release`, you have two options:
 ### Install via Repository
 ```console
 helm repo add opendesk-impress https://gitlab.opencode.de/api/v4/projects/5478/packages/helm/stable
-helm install my-release --version 1.1.0 opendesk-impress/frontend
+helm install my-release --version 1.1.1 opendesk-impress/frontend
 ```
 
 ### Install via OCI Registry
 ```console
 helm repo add opendesk-impress oci://registry.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress
-helm install my-release --version 1.1.0 opendesk-impress/frontend
+helm install my-release --version 1.1.1 opendesk-impress/frontend
 ```
 
 ## Requirements
@@ -37,9 +37,6 @@ helm install my-release --version 1.1.0 opendesk-impress/frontend
 | affinity | object | `{}` | Affinity for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity Note: podAffinityPreset, podAntiAffinityPreset, and nodeAffinityPreset will be ignored when it's set. |
 | configuration.backendHost | string | `"impress-backend"` | Internal backend service hostname (Kubernetes service DNS name, e.g. "impress-backend") |
 | configuration.backendPort | int | `80` | Internal backend service port |
-| configuration.objectStoreBucketName | string | `"notes"` | Object Store Bucket name |
-| configuration.objectStoreHost | string | `""` | Object Store Host |
-| configuration.objectStorePort | int | `443` | Object Store Port |
 | configuration.port | int | `8080` | Container port to listen on |
 | configuration.webserver | object | `{"loglevel":"info","workerProcesses":"4"}` | Webserver specific configuration |
 | configuration.webserver.loglevel | string | `"info"` | nginx loglevel  Ref.: https://docs.nginx.com/nginx/admin-guide/monitoring/logging/ |
