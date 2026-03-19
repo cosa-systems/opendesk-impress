@@ -348,12 +348,6 @@ configuration:
   backendHost: "impress-backend"
   # -- Internal backend service port
   backendPort: 80
-  # -- Object Store Host
-  objectStoreHost: ""
-  # -- Object Store Port
-  objectStorePort: 443
-  # -- Object Store Bucket name
-  objectStoreBucketName: "notes"
   # -- Container port to listen on
   port: 8080
   # -- Webserver specific configuration

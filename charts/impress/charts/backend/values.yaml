@@ -474,30 +474,6 @@ configuration:
     # -- Allow AI requests from public, authenticated or restricted
     allowReachFrom: ""
 
-  aws:
-    # -- AWS endpoint URL
-    endpointUrl: ""
-    s3AccessKeyId:
-      # -- Value of S3 Access Key ID
-      value: ""
-      existingSecret:
-        # -- Name of existing secret containing S3 Access Key Id, overrules provided value
-        name: ""
-        # -- Key where S3 Access Key ID is stored
-        key: "awsS3AccessKeyId"
-    s3SecretAccessKey:
-      # -- Value of S3 Secret Access Key
-      value: ""
-      existingSecret:
-        # -- Name of existing secret containing S3 Secret Access Key, overrules provided value
-        name: ~
-        # -- Key where S3 Secret Access Key is stored
-        key: "awsS3SecretAccessKey"
-    # -- S3 region name
-    regionName: ""
-    # -- S3 bucket name
-    storageBucketName: "notes"
-
   collaboration:
     # -- Collaboration API URL
     apiUrl: ""

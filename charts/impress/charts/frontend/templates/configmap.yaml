@@ -59,18 +59,21 @@ data:
             # Rewrite URI to object store path; using rewrite+break with a static
             # proxy_pass (no URI, no variables) so nginx resolves the hostname at
             # config load time via /etc/resolv.conf — no explicit resolver needed.
-            rewrite ^/media/(.*)$ /{{ .Values.configuration.objectStoreBucketName }}/$1 break;
+            rewrite ^/media/(.*)$ /{{ .Values.global.s3.bucketName }}/$1 break;
 
-            proxy_pass https://{{ .Values.configuration.objectStoreHost }}:{{ .Values.configuration.objectStorePort }};
+            proxy_pass https://{{ .Values.global.s3.host }}:{{ .Values.global.s3.port }};
 
             proxy_ssl_server_name on;
 
-            proxy_set_header Host {{ .Values.configuration.objectStoreHost }};
+            proxy_set_header Host {{ .Values.global.s3.host }};
 
             # Forward auth headers to objectstore
             proxy_set_header Authorization $auth_authorization;
             proxy_set_header X-Amz-Date $auth_amz_date;
             proxy_set_header X-Amz-Content-SHA256 $auth_amz_sha;
+
+            # Strip Referer so objectstore bucket policies don't reject cross-domain requests
+            proxy_set_header Referer "";
 
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

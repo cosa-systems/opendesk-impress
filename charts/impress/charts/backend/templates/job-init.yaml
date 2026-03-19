@@ -169,21 +169,21 @@ spec:
             - name: "AI_ALLOW_REACH_FROM"
               value: {{ .Values.configuration.ai.allowReachFrom | quote }}
             - name: "AWS_S3_ENDPOINT_URL"
-              value: {{ .Values.configuration.aws.endpointUrl | quote }}
+              value: {{ printf "https://%s:%v" .Values.global.s3.host .Values.global.s3.port | quote }}
             - name: "AWS_S3_ACCESS_KEY_ID"
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.configuration.aws.s3AccessKeyId.existingSecret.name | default (include "common.names.fullname" .) | quote }}
-                  key: {{ .Values.configuration.aws.s3AccessKeyId.existingSecret.key | default "awsS3AccessKeyId" | quote }}
+                  name: {{ .Values.global.s3.accessKeyId.existingSecret.name | default (include "common.names.fullname" .) | quote }}
+                  key: {{ .Values.global.s3.accessKeyId.existingSecret.key | quote }}
             - name: "AWS_S3_SECRET_ACCESS_KEY"
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.configuration.aws.s3SecretAccessKey.existingSecret.name | default (include "common.names.fullname" .) | quote }}
-                  key: {{ .Values.configuration.aws.s3SecretAccessKey.existingSecret.key | default "awsS3SecretAccessKey" | quote }}
+                  name: {{ .Values.global.s3.secretAccessKey.existingSecret.name | default (include "common.names.fullname" .) | quote }}
+                  key: {{ .Values.global.s3.secretAccessKey.existingSecret.key | quote }}
             - name: "AWS_S3_REGION_NAME"
-              value: {{ .Values.configuration.aws.regionName | quote }}
+              value: {{ .Values.global.s3.regionName | quote }}
             - name: "AWS_STORAGE_BUCKET_NAME"
-              value: {{ .Values.configuration.aws.storageBucketName | quote }}
+              value: {{ .Values.global.s3.bucketName | quote }}
             {{- if .Values.configuration.oidc.enabled }}
             - name: "OIDC_CREATE_USER"
               value: {{ .Values.configuration.oidc.createUser | quote }}

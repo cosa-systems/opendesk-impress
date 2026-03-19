@@ -40,6 +40,38 @@ global:
   # -- Container registry address.
   imageRegistry: "docker.io"
 
+  # -- S3-compatible object store configuration shared by backend and frontend.
+  # Setting values here overrides the individual backend/frontend sub-chart values.
+  s3:
+    # -- Hostname of the S3-compatible endpoint (e.g. s3.eu-central-2.wasabisys.com).
+    # Used by the frontend nginx proxy (Host header + proxy_pass) and to derive AWS_S3_ENDPOINT_URL for the backend.
+    host: ""
+    # -- Port of the S3-compatible endpoint.
+    port: 443
+    # -- Bucket name. Must be identical between backend (AWS_STORAGE_BUCKET_NAME) and the
+    # frontend nginx media proxy — set it once here instead of in both sub-charts separately.
+    bucketName: "notes"
+    # -- S3 region name (AWS_S3_REGION_NAME).
+    regionName: ""
+    # -- S3 Access Key ID
+    accessKeyId:
+      # -- Plain-text value; ignored when existingSecret.name is set.
+      value: ""
+      existingSecret:
+        # -- Name of an existing secret containing the Access Key ID; overrides value above.
+        name: ""
+        # -- Key inside the existing secret.
+        key: "awsS3AccessKeyId"
+    # -- S3 Secret Access Key
+    secretAccessKey:
+      # -- Plain-text value; ignored when existingSecret.name is set.
+      value: ""
+      existingSecret:
+        # -- Name of an existing secret containing the Secret Access Key; overrides value above.
+        name: ""
+        # -- Key inside the existing secret.
+        key: "awsS3SecretAccessKey"
+
   # -- TLS secret name
   tlsSecretName: ""
 
