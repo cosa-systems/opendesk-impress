@@ -13,13 +13,13 @@ To install the chart with the release name `my-release`, you have two options:
 ### Install via Repository
 ```console
 helm repo add opendesk-impress https://gitlab.opencode.de/api/v4/projects/5478/packages/helm/stable
-helm install my-release --version 1.1.1 opendesk-impress/impress
+helm install my-release --version 1.1.2 opendesk-impress/impress
 ```
 
 ### Install via OCI Registry
 ```console
 helm repo add opendesk-impress oci://registry.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress
-helm install my-release --version 1.1.1 opendesk-impress/impress
+helm install my-release --version 1.1.2 opendesk-impress/impress
 ```
 
 ## Requirements
@@ -68,6 +68,7 @@ helm install my-release --version 1.1.1 opendesk-impress/impress
 | backend.configuration.ai.apiKey.existingSecret.name | string | `nil` | Name of existing secret containing AI API key, overrules provided value |
 | backend.configuration.ai.apiKey.value | string | `""` | Value of AI API Key |
 | backend.configuration.ai.baseUrl | string | `""` | Base URL of AI |
+| backend.configuration.ai.enabled | bool | `false` | Toggle AI feature |
 | backend.configuration.ai.model | string | `""` | AI Model |
 | backend.configuration.args | list | `[]` | Override default args |
 | backend.configuration.collaboration.apiUrl | string | `""` | Collaboration API URL |
