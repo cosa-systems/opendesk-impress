@@ -149,6 +149,12 @@ spec:
                   key: {{ .Values.configuration.email.password.existingSecret.key | default "djangoEmailHostPassword" | quote }}
             - name: "DJANGO_EMAIL_USE_TLS"
               value: {{ .Values.configuration.email.useTLS | quote }}
+            - name: "AI_FEATURE_ENABLED"
+              value: {{ .Values.configuration.ai.enabled | quote }}
+            - name: "AI_FEATURE_BLOCKNOTE_ENABLED"
+              value: "true"
+            - name: "AI_FEATURE_LEGACY_ENABLED"
+              value: "true"
             - name: "AI_API_KEY"
               valueFrom:
                 secretKeyRef:

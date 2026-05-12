@@ -459,6 +459,8 @@ configuration:
         key: "djangoSuperuserPassword"
 
   ai:
+    # -- Toggle AI feature
+    enabled: false
     apiKey:
       # -- Value of AI API Key
       value: ""
