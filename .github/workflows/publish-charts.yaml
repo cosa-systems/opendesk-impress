@@ -1,0 +1,79 @@
+# SPDX-FileCopyrightText: 2026 cosa.systems GmbH <https://cosa.systems>
+# SPDX-License-Identifier: Apache-2.0
+---
+# Publish the impress (OpenDesk Notes / La Suite Docs) chart to
+# ghcr.io/${{ github.repository_owner }} (i.e. ghcr.io/cosa-systems).
+#
+# Trigger:
+#   * push to `cosa-deploy` (auto-publish on every commit there)
+#   * workflow_dispatch (manual button in the Actions UI)
+#
+# Chart version is read from charts/impress/Chart.yaml. Bump the `-cosa.N`
+# counter there + push to cosa-deploy = new package. The opendesk helmfile's
+# charts.notes override points at oci://ghcr.io/cosa-systems/impress at that
+# version.
+name: "Publish helm charts"
+
+on:
+  push:
+    branches:
+      - "cosa-deploy"
+    paths:
+      - "charts/impress/**"
+      - ".github/workflows/publish-charts.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: "read"
+  packages: "write"
+
+jobs:
+  publish:
+    runs-on: "ubuntu-latest"
+    strategy:
+      fail-fast: false
+      matrix:
+        chart:
+          - "impress"
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v4"
+
+      - name: "Set up Helm"
+        uses: "azure/setup-helm@v4"
+        with:
+          version: "v3.16.4"
+
+      - name: "Log in to ghcr.io"
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" \
+            | helm registry login ghcr.io \
+                --username "${{ github.actor }}" \
+                --password-stdin
+
+      - name: "Resolve chart dependencies"
+        # Pulls the bitnami `common` chart from registry.opencode.de
+        # (anonymous read is allowed for CE charts). See charts/impress/Chart.yaml
+        # — the dependency was repointed there from the dead charts.bitnami.com.
+        # The backend / frontend / y-provider subcharts are vendored locally.
+        run: |
+          helm dependency update "charts/${{ matrix.chart }}"
+
+      - name: "Package chart"
+        id: "package"
+        run: |
+          mkdir -p out
+          helm package "charts/${{ matrix.chart }}" --destination out
+          tgz=$(ls out/${{ matrix.chart }}-*.tgz)
+          echo "tgz=${tgz}" >> "${GITHUB_OUTPUT}"
+          version=$(echo "${tgz}" \
+            | sed -nE 's|.*/${{ matrix.chart }}-(.+)\.tgz|\1|p')
+          echo "version=${version}" >> "${GITHUB_OUTPUT}"
+
+      - name: "Push to ghcr.io/${{ github.repository_owner }}"
+        run: |
+          # Owner has to be lowercase for OCI references.
+          owner=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          helm push "${{ steps.package.outputs.tgz }}" "oci://ghcr.io/${owner}"
+          echo
+          echo "Published: oci://ghcr.io/${owner}/${{ matrix.chart }}:${{ steps.package.outputs.version }}"
