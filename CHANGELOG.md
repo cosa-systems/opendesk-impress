@@ -1,3 +1,10 @@
+## [1.1.3](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.1.2...v1.1.3) (2026-06-24)
+
+
+### Bug Fixes
+
+* **init:** Ensure jobs stops on failure ([55044c8](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/55044c8badfae2335ca123d3627f0862e55957c9))
+
 ## [1.1.2](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.1.1...v1.1.2) (2026-05-12)
 
 
