@@ -69,6 +69,7 @@ spec:
             - "/bin/sh"
             - "-c"
             - |
+              set -e
               while ! python manage.py check --database default > /dev/null 2>&1
               do
                 echo "Database not ready"
@@ -78,7 +79,7 @@ spec:
               {{ .Values.configuration.init.migrate.command }}
               {{- end }}
               {{- if .Values.configuration.init.createSuperuser.enabled }}
-              {{ .Values.configuration.init.createSuperuser.command }}
+              {{ .Values.configuration.init.createSuperuser.command | trim }} || echo "WARNING: createsuperuser failed (non-fatal), continuing"
               {{- end }}
           env:
             {{- if .Values.configuration.database.engine }}
