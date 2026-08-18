@@ -158,12 +158,12 @@ spec:
                   key: {{ .Values.configuration.email.password.existingSecret.key | default "djangoEmailHostPassword" | quote }}
             - name: "DJANGO_EMAIL_USE_TLS"
               value: {{ .Values.configuration.email.useTLS | quote }}
-            - name: "AI_API_KEY"
+            - name: "OPENAI_SDK_API_KEY"
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.configuration.ai.apiKey.existingSecret.name | default (include "common.names.fullname" .) | quote }}
                   key: {{ .Values.configuration.ai.apiKey.existingSecret.key | default "aiApiKey" | quote }}
-            - name: "AI_BASE_URL"
+            - name: "OPENAI_SDK_BASE_URL"
               value: {{ .Values.configuration.ai.baseUrl | quote }}
             - name: "AI_MODEL"
               value: {{ .Values.configuration.ai.model | quote }}
@@ -250,6 +250,10 @@ spec:
               value: {{ .Values.configuration.yProvider.apiBaseUrl | default (printf "https://%s/api/" .Values.global.fqdn) | quote }}
             - name: "COLLABORATION_API_URL"
               value: {{ .Values.configuration.collaboration.apiUrl | quote }}
+            {{- if or .Values.configuration.docSpec.apiUrl .Values.configuration.docSpec.enabled }}
+            - name: "DOCSPEC_API_URL"
+              value: {{ .Values.configuration.docSpec.apiUrl | default (printf "http://%s-docspec" .Release.Name) | quote }}
+            {{- end }}
             - name: "COLLABORATION_SERVER_SECRET"
               valueFrom:
                 secretKeyRef:

@@ -90,7 +90,7 @@ image:
   imagePullPolicy: "IfNotPresent"
 
   # -- Define image tag.
-  tag: "v3.3.0@sha256:64b070ba83df9af83c5e6163a1a309f6ec3ad8c5be31e1fbc8212379fccf6e6e"
+  tag: "v5.4.1@sha256:5c299a7ac029ed07fe6d8ae3535201c80728b68a05550536b7e7dd73df13ea40"
 
 # -- Credentials to fetch images from private registry.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -610,6 +610,17 @@ configuration:
     logoutRedirectUrl: ""
     # -- Allow logout request with `GET`
     allowLogoutGetMethod: "True"
+
+  docSpec:
+    # -- Point the backend at the docSpec conversion service, which performs the
+    # DOCX -> BlockNote leg of DOCX import. Set this to false to deploy without
+    # DOCX import: DOCSPEC_API_URL is then not set at all and Word uploads fail
+    # while everything else, export included, keeps working.
+    # Keep in sync with the `docspec.enabled` sub-chart flag.
+    enabled: true
+    # -- Base URL of the docSpec service. Defaults to the in-cluster service
+    # deployed by the docspec sub-chart, `http://<release>-docspec`.
+    apiUrl: ""
 
   yProvider:
     # -- API Base URL

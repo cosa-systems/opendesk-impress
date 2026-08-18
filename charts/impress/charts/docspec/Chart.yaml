@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: 2026 Zentrum für Digitale Souveränität der Öffentlichen Verwaltung (ZenDiS) GmbH
+# SPDX-License-Identifier: Apache-2.0
+---
+annotations:
+  category: "Communication"
+  licenses: "Apache-2.0"
+apiVersion: "v2"
+dependencies:
+  - name: "common"
+    version: "^2.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+description: "A Helm chart for deploying the docSpec conversion service used by Impress"
+home: "https://docs.numerique.gouv.fr/"
+name: "docspec"
+type: "application"
+version: "1.0.0"
+...

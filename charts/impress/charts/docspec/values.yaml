@@ -1,0 +1,273 @@
+# SPDX-FileCopyrightText: 2026 Zentrum für Digitale Souveränität der Öffentlichen Verwaltung (ZenDiS) GmbH
+# SPDX-License-Identifier: Apache-2.0
+---
+# -- Deploy the docSpec conversion service. Required for DOCX import; without it
+# the DOCX -> BlockNote conversion leg has nowhere to run and Word uploads fail.
+enabled: true
+
+# -- Additional custom annotations to add to all deployed objects.
+additionalAnnotations: {}
+
+# -- Additional custom labels to add to all deployed objects.
+additionalLabels: {}
+
+# -- Affinity for pod assignment.
+# Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+affinity: {}
+
+# Security Context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+containerSecurityContext:
+  # -- Enable container privileged escalation.
+  allowPrivilegeEscalation: false
+
+  # -- Security capabilities for container.
+  capabilities:
+    drop:
+      - "ALL"
+
+  # -- Enable security context.
+  enabled: true
+
+  # -- Run container in privileged mode
+  privileged: false
+
+  # -- Process user id. The upstream image ships an Elixir/OTP release running as uid 1000.
+  runAsUser: 1000
+
+  # -- Process group id.
+  runAsGroup: 1000
+
+  # Set Seccomp profile.
+  seccompProfile:
+    # -- Disallow custom Seccomp profile by setting it to RuntimeDefault.
+    type: "RuntimeDefault"
+
+  # -- Mounts the container's root filesystem as read-only.
+  # Left writable: the OTP release writes its runtime state below the release
+  # directory, not only to /tmp. Flip to true once that is verified upstream.
+  readOnlyRootFilesystem: false
+
+  # -- Run container as a user.
+  runAsNonRoot: true
+
+# -- Enable debugging
+debug: false
+
+# -- Array with extra environment variables to add to containers.
+#
+# extraEnvVars:
+#   - name: FOO
+#     value: "bar"
+#
+extraEnvVars: []
+
+# -- Optionally specify an extra list of additional volumes.
+extraVolumes: []
+
+# -- Optionally specify an extra list of additional volumeMounts.
+extraVolumeMounts: []
+
+# -- Provide a name to substitute for the full names of resources.
+fullnameOverride: ""
+
+# Container image section.
+image:
+  # -- Container registry address. This setting has higher precedence than global.registry.
+  # docSpec is published on the GitHub container registry, not on Docker Hub.
+  registry: "ghcr.io"
+
+  # -- Container repository string.
+  repository: "docspecio/api"
+
+  # -- Define an ImagePullPolicy.
+  #
+  # Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy
+  #
+  # "IfNotPresent" => The image is pulled only if it is not already present locally.
+  # "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to
+  #             resolve the name to an image digest.
+  # "Never" => The kubelet does not try fetching the image.
+  #
+  imagePullPolicy: "IfNotPresent"
+
+  # -- Define image tag.
+  tag: "3.0.1@sha256:0b9effae9045cee5ebda80280c8bc5a075b5e368d741309f98aec0ff259a802d"
+
+# -- Credentials to fetch images from private registry.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+#
+# imagePullSecrets:
+#   - "docker-registry"
+#
+imagePullSecrets: []
+
+# -- Lifecycle to automate configuration before or after startup.
+lifecycleHooks: {}
+
+# -- String to partially override release name.
+nameOverride: ""
+
+# -- Node labels for pod assignment.
+# Ref: https://kubernetes.io/docs/user-guide/node-selection/
+nodeSelector: {}
+
+#  Configure extra options for containers probes.
+livenessProbe:
+  # -- Enables kubernetes LivenessProbe.
+  enabled: true
+  # -- Number of failed executions until container is terminated.
+  failureThreshold: 3
+  # -- Delay after container start until LivenessProbe is executed.
+  initialDelaySeconds: 10
+  # -- Time between probe executions.
+  periodSeconds: 10
+  # -- Number of successful executions after failed ones until container is marked healthy.
+  successThreshold: 1
+  # -- Timeout for command return.
+  timeoutSeconds: 1
+
+# -- Pod disruption budget
+# Ref.: https://kubernetes.io/docs/tasks/run-application/configure-pdb/
+pdb:
+  # -- Whether PodDisruptionBudget for the docSpec should be enabled
+  enabled: true
+  # -- How many pods need to be available at any given time
+  minAvailable: 1
+  # -- How many pods can be unavailable at any given time
+  maxUnavailable: ~
+
+# -- Pod Annotations.
+# Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+
+# -- Pod Labels.
+# Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+# Pod Security Context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+podSecurityContext:
+  # -- Enable security context.
+  enabled: true
+
+  # -- If specified, all processes of the container are also part of the supplementary group.
+  fsGroup: 1000
+
+  # -- Change ownership and permission of the volume before being exposed inside a Pod.
+  fsGroupChangePolicy: "Always"
+
+#  Configure extra options for containers probes.
+readinessProbe:
+  # -- Enables kubernetes ReadinessProbe.
+  enabled: true
+  # -- Delay after container start until ReadinessProbe is executed.
+  initialDelaySeconds: 15
+  # -- Number of failed executions until container is terminated.
+  failureThreshold: 10
+  # -- Time between probe executions.
+  periodSeconds: 20
+  # -- Number of successful executions after failed ones until container is marked healthy.
+  successThreshold: 1
+  # -- Timeout for command return.
+  timeoutSeconds: 5
+
+# -- Set the amount of replicas of deployment.
+replicaCount: 1
+
+# Configure resource requests and limits.
+#
+# Ref: https://kubernetes.io/docs/user-guide/compute-resources/
+resources:
+  limits:
+    # -- The max number of CPUs to consume.
+    cpu: 1
+    # -- The max number of RAM to consume.
+    memory: "1Gi"
+  requests:
+    # -- The number of CPUs which has to be available on the scheduled node.
+    cpu: "100m"
+    # -- The number of RAM which has to be available on the scheduled node.
+    memory: "256Mi"
+
+# Define and create Kubernetes Service.
+#
+# Ref.: https://kubernetes.io/docs/concepts/services-networking/service
+service:
+  # -- Additional custom annotations.
+  annotations: {}
+
+  # -- Enable kubernetes service creation.
+  enabled: true
+
+  # -- Choose the kind of Service, one of "ClusterIP", "NodePort" or "LoadBalancer".
+  # docSpec is only ever called by the backend from inside the cluster.
+  type: "ClusterIP"
+
+  # Define the ports of Service.
+  # You can set the port value to an arbitrary value, it will map the container port by name.
+  #
+  ports:
+    http:
+      # -- Accessible port.
+      port: 80
+      # -- Internal port.
+      containerPort: 4000
+      # -- Service protocol.
+      protocol: "TCP"
+
+# Service account to use.
+# Ref.: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+serviceAccount:
+  # -- Additional custom annotations for the ServiceAccount.
+  annotations: {}
+
+  # -- Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this
+  # serviceAccount do not need to use K8s API.
+  automountServiceAccountToken: false
+
+  # -- Enable creation of ServiceAccount for pod.
+  create: true
+
+  # -- Additional custom labels for the ServiceAccount.
+  labels: {}
+
+#  Configure extra options for containers probes.
+startupProbe:
+  # -- Enables kubernetes StartupProbe.
+  enabled: true
+  # -- Delay after container start until StartupProbe is executed.
+  initialDelaySeconds: 15
+  # -- Number of failed executions until container is terminated.
+  failureThreshold: 10
+  # -- Time between probe executions.
+  periodSeconds: 20
+  # -- Number of successful executions after failed ones until container is marked healthy.
+  successThreshold: 1
+  # -- Timeout for command return.
+  timeoutSeconds: 5
+
+# -- In seconds, time the given to the pod needs to terminate gracefully.
+# Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods
+terminationGracePeriodSeconds: ""
+
+# -- Tolerations for pod assignment.
+# Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+tolerations: []
+
+# -- Topology spread constraints rely on node labels to identify the topology domain(s) that each Node is in.
+# Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/
+topologySpreadConstraints: []
+
+# Set up update strategy.
+#
+# Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+updateStrategy:
+  # -- Set to Recreate if you use persistent volume that cannot be mounted by more than one pods to make sure the pods
+  # are destroyed first.
+  type: "RollingUpdate"
+
+configuration:
+  # -- HTTP path used by the container probes.
+  healthPath: "/health"
+...
