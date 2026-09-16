@@ -21,5 +21,14 @@ spec:
   selector:
     matchLabels:
       {{- include "common.labels.matchLabels" . | nindent 6 }}
+    # The init Job's pods carry the same standard labels as the Deployment's
+    # pods. A PodDisruptionBudget cannot resolve a Job as a scale target, so
+    # once a finished init pod matches the selector the PDB controller reports
+    # `DisruptionAllowed=False (SyncFailed)` and every drain of the backend's
+    # node is refused. Job-owned pods always carry batch.kubernetes.io/job-name;
+    # keep them out of the budget.
+    matchExpressions:
+      - key: batch.kubernetes.io/job-name
+        operator: DoesNotExist
 ...
 {{- end }}
