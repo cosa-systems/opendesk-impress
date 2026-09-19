@@ -44,9 +44,7 @@ containerSecurityContext:
     type: "RuntimeDefault"
 
   # -- Mounts the container's root filesystem as read-only.
-  # Left writable: the OTP release writes its runtime state below the release
-  # directory, not only to /tmp. Flip to true once that is verified upstream.
-  readOnlyRootFilesystem: false
+  readOnlyRootFilesystem: true
 
   # -- Run container as a user.
   runAsNonRoot: true
