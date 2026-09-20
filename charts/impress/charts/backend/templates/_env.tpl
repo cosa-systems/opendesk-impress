@@ -230,3 +230,14 @@ same configuration. Emitted at the indentation of a container's "env:" list, so 
             {{- . | toYaml | nindent 12 }}
           {{- end }}
 {{- end -}}
+
+{{/*
+Command probing a Celery worker. It serves no HTTP, so it is asked to answer a ping over the
+broker instead. $HOSTNAME is expanded by the shell: a probe's command is passed to exec()
+unchanged, so "$(VAR)" would reach Celery verbatim.
+*/}}
+{{- define "impress.backend.worker.probe" -}}
+- "sh"
+- "-c"
+- "celery --app impress.celery_app inspect ping --destination celery@$HOSTNAME --timeout {{ . }}"
+{{- end -}}

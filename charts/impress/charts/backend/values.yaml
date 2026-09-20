@@ -397,7 +397,8 @@ worker:
       memory: "256Mi"
   # -- Annotations added to the worker pods.
   podAnnotations: {}
-  # A Celery worker serves no HTTP, so it is probed by asking it to answer a ping over the broker.
+  # A Celery worker serves no HTTP, so both probes ask it to answer a ping over the broker: a
+  # worker that cannot reach the broker picks up no tasks.
   livenessProbe:
     # -- Enables kubernetes LivenessProbe.
     enabled: true
@@ -410,6 +411,21 @@ worker:
     # -- Seconds the ping waits for the worker to answer.
     pingTimeout: 10
     # -- Number of successful executions after failed ones until container is marked healthy.
+    successThreshold: 1
+    # -- Timeout for command return.
+    timeoutSeconds: 15
+  readinessProbe:
+    # -- Enables kubernetes ReadinessProbe.
+    enabled: true
+    # -- Number of failed executions until container is marked unready.
+    failureThreshold: 3
+    # -- Delay after container start until ReadinessProbe is executed.
+    initialDelaySeconds: 15
+    # -- Time between probe executions.
+    periodSeconds: 30
+    # -- Seconds the ping waits for the worker to answer.
+    pingTimeout: 10
+    # -- Number of successful executions after failed ones until container is marked ready.
     successThreshold: 1
     # -- Timeout for command return.
     timeoutSeconds: 15

@@ -90,16 +90,23 @@ spec:
           livenessProbe:
             exec:
               command:
-                # $HOSTNAME is expanded by the shell: a probe's command is passed to exec()
-                # unchanged, so "$(VAR)" would reach Celery verbatim.
-                - "sh"
-                - "-c"
-                - "celery --app impress.celery_app inspect ping --destination celery@$HOSTNAME --timeout {{ .Values.worker.livenessProbe.pingTimeout }}"
+                {{- include "impress.backend.worker.probe" .Values.worker.livenessProbe.pingTimeout | nindent 16 }}
             initialDelaySeconds: {{ .Values.worker.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.worker.livenessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.worker.livenessProbe.timeoutSeconds }}
             failureThreshold: {{ .Values.worker.livenessProbe.failureThreshold }}
             successThreshold: {{ .Values.worker.livenessProbe.successThreshold }}
+          {{- end }}
+          {{- if .Values.worker.readinessProbe.enabled }}
+          readinessProbe:
+            exec:
+              command:
+                {{- include "impress.backend.worker.probe" .Values.worker.readinessProbe.pingTimeout | nindent 16 }}
+            initialDelaySeconds: {{ .Values.worker.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.worker.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.worker.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.worker.readinessProbe.failureThreshold }}
+            successThreshold: {{ .Values.worker.readinessProbe.successThreshold }}
           {{- end }}
           {{- if .Values.worker.resources }}
           resources: {{- include "common.tplvalues.render" (dict "value" .Values.worker.resources "context" .) | nindent 12 }}
