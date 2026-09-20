@@ -367,6 +367,53 @@ tolerations: []
 #     whenUnsatisfiable: DoNotSchedule
 topologySpreadConstraints: []
 
+# Celery worker executing the backend's background tasks, such as notifying the collaboration
+# server after a permission change and sending "ask for access" mails. Without it those tasks are
+# queued and never run.
+worker:
+  # -- Deploy the Celery worker. Requires `configuration.celery.brokerUrl`.
+  enabled: false
+  # -- Number of worker pods.
+  replicaCount: 1
+  # -- Number of child processes per worker pod. Empty lets Celery use the CPU count.
+  concurrency: 2
+  # -- Log level the worker starts with.
+  logLevel: "INFO"
+  # -- Queues the worker consumes. Empty consumes the default queue.
+  queues: ""
+  # Configure resource requests and limits.
+  #
+  # Ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  resources:
+    limits:
+      # -- The max number of CPUs to consume.
+      cpu: 1
+      # -- The max number of RAM to consume.
+      memory: "1Gi"
+    requests:
+      # -- The number of CPUs which has to be available on the scheduled node.
+      cpu: "50m"
+      # -- The number of RAM which has to be available on the scheduled node.
+      memory: "256Mi"
+  # -- Annotations added to the worker pods.
+  podAnnotations: {}
+  # A Celery worker serves no HTTP, so it is probed by asking it to answer a ping over the broker.
+  livenessProbe:
+    # -- Enables kubernetes LivenessProbe.
+    enabled: true
+    # -- Number of failed executions until container is terminated.
+    failureThreshold: 3
+    # -- Delay after container start until LivenessProbe is executed.
+    initialDelaySeconds: 30
+    # -- Time between probe executions.
+    periodSeconds: 60
+    # -- Seconds the ping waits for the worker to answer.
+    pingTimeout: 10
+    # -- Number of successful executions after failed ones until container is marked healthy.
+    successThreshold: 1
+    # -- Timeout for command return.
+    timeoutSeconds: 15
+
 # Set up update strategy.
 #
 # Ref: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
@@ -528,6 +575,40 @@ configuration:
       name: ~
       # -- Key where Redis URL is stored
       key: "redisUrl"
+  celery:
+    # Broker the background tasks are queued in. Left unconfigured, the backend falls back to
+    # redis://redis:6379/0 and every view queueing a task answers 500.
+    broker:
+      # -- Scheme of the broker, "redis" or "rediss" for TLS.
+      scheme: "redis"
+      # -- Host of the broker. Required unless `url` is set.
+      host: ""
+      # -- Port of the broker.
+      port: 6379
+      # -- Database of the broker. Give the queue a database of its own: flushing the database the
+      # cache lives in would drop queued tasks.
+      database: "0"
+      # -- Username of the broker.
+      username: ""
+      password:
+        # -- Value of the broker password. Stored in this chart's secret and joined into the
+        # broker URL inside the container, so that neither values nor the pod spec carry it.
+        # Percent-encode it if it contains characters that are unsafe in a URL.
+        value: ""
+        existingSecret:
+          # -- Name of existing secret containing the broker password, overrules provided value
+          name: ~
+          # -- Key where the broker password is stored
+          key: "celeryBrokerPassword"
+      url:
+        # -- Value of the full broker URL, e.g. redis://user:password@redis:6379/2. Overrules the
+        # settings above. Carries the password inside the URL, so prefer the settings above.
+        value: ""
+        existingSecret:
+          # -- Name of existing secret containing the full broker URL, overrules provided value
+          name: ~
+          # -- Key where the full broker URL is stored
+          key: "celeryBrokerUrl"
   # -- Days after items in trash will be permamently deleted
   trashbinCutoffDays: "30"
 
