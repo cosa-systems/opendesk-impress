@@ -172,7 +172,7 @@ same configuration. Emitted at the indentation of a container's "env:" list, so 
             - name: "OIDC_RP_SCOPES"
               value: {{ .Values.configuration.oidc.rpScopes | quote }}
             - name: "LOGIN_REDIRECT_URL"
-              value: {{ .Values.configuration.oidc.loginRedirectUrl | default (printf "https://%s/" (include "impress.backend.fqdn" .)) quote }}
+              value: {{ .Values.configuration.oidc.loginRedirectUrl | default (printf "https://%s/" (include "impress.backend.fqdn" .)) | quote }}
             - name: "LOGIN_REDIRECT_URL_FAILURE"
               value: {{ .Values.configuration.oidc.loginRedirectUrlFailure | quote }}
             - name: "LOGOUT_REDIRECT_URL"
