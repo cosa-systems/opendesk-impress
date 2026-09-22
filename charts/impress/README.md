@@ -13,13 +13,13 @@ To install the chart with the release name `my-release`, you have two options:
 ### Install via Repository
 ```console
 helm repo add opendesk-impress https://gitlab.opencode.de/api/v4/projects/5478/packages/helm/stable
-helm install my-release --version 1.1.4 opendesk-impress/impress
+helm install my-release --version 1.2.0 opendesk-impress/impress
 ```
 
 ### Install via OCI Registry
 ```console
 helm repo add opendesk-impress oci://registry.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress
-helm install my-release --version 1.1.4 opendesk-impress/impress
+helm install my-release --version 1.2.0 opendesk-impress/impress
 ```
 
 ## Requirements
@@ -27,6 +27,7 @@ helm install my-release --version 1.1.4 opendesk-impress/impress
 | Repository | Name | Version |
 |------------|------|---------|
 |  | backend | * |
+|  | docspec | * |
 |  | frontend | * |
 |  | y-provider | * |
 | https://charts.bitnami.com/bitnami | common | ^2.x.x |
@@ -71,6 +72,17 @@ helm install my-release --version 1.1.4 opendesk-impress/impress
 | backend.configuration.ai.enabled | bool | `false` | Toggle AI feature |
 | backend.configuration.ai.model | string | `""` | AI Model |
 | backend.configuration.args | list | `[]` | Override default args |
+| backend.configuration.celery.broker.database | string | `"0"` | Database of the broker. Give the queue a database of its own: flushing the database the cache lives in would drop queued tasks. |
+| backend.configuration.celery.broker.host | string | `""` | Host of the broker. Required unless `url` is set. |
+| backend.configuration.celery.broker.password.existingSecret.key | string | `"celeryBrokerPassword"` | Key where the broker password is stored |
+| backend.configuration.celery.broker.password.existingSecret.name | string | `nil` | Name of existing secret containing the broker password, overrules provided value |
+| backend.configuration.celery.broker.password.value | string | `""` | Value of the broker password. Stored in this chart's secret and joined into the broker URL inside the container, so that neither values nor the pod spec carry it. Percent-encode it if it contains characters that are unsafe in a URL. |
+| backend.configuration.celery.broker.port | int | `6379` | Port of the broker. |
+| backend.configuration.celery.broker.scheme | string | `"redis"` | Scheme of the broker, "redis" or "rediss" for TLS. |
+| backend.configuration.celery.broker.url.existingSecret.key | string | `"celeryBrokerUrl"` | Key where the full broker URL is stored |
+| backend.configuration.celery.broker.url.existingSecret.name | string | `nil` | Name of existing secret containing the full broker URL, overrules provided value |
+| backend.configuration.celery.broker.url.value | string | `""` | Value of the full broker URL, e.g. redis://user:password@redis:6379/2. Overrules the settings above. Carries the password inside the URL, so prefer the settings above. |
+| backend.configuration.celery.broker.username | string | `""` | Username of the broker. |
 | backend.configuration.collaboration.apiUrl | string | `""` | Collaboration API URL |
 | backend.configuration.collaboration.wsUrl | string | `""` | Collaboration websocket URL |
 | backend.configuration.command | list | `[]` | Override default command |
@@ -99,6 +111,8 @@ helm install my-release --version 1.1.4 opendesk-impress/impress
 | backend.configuration.django.superuserPassword.existingSecret.key | string | `"djangoSuperuserPassword"` | Key where superuser password is stored |
 | backend.configuration.django.superuserPassword.existingSecret.name | string | `nil` | Name of existing key containing superuser password, overrules provided value |
 | backend.configuration.django.superuserPassword.value | string | `""` | Superuser password |
+| backend.configuration.docSpec.apiUrl | string | `""` | Base URL of the docSpec service. Defaults to the in-cluster service deployed by the docspec sub-chart, `http://<release>-docspec`. |
+| backend.configuration.docSpec.enabled | bool | `true` | Point the backend at the docSpec conversion service, which performs the DOCX -> BlockNote leg of DOCX import. Set this to false to deploy without DOCX import: DOCSPEC_API_URL is then not set at all and Word uploads fail while everything else, export included, keeps working. Keep in sync with the `docspec.enabled` sub-chart flag. |
 | backend.configuration.documentImageMaxSize | string | `nil` | Max size of images in bytes |
 | backend.configuration.email.brandName | string | `""` | Email brand name |
 | backend.configuration.email.from | string | `""` | From address |
@@ -108,6 +122,7 @@ helm install my-release --version 1.1.4 opendesk-impress/impress
 | backend.configuration.email.password.existingSecret.name | string | `nil` | Name of existing secret containing the password of the user, overrules provided value |
 | backend.configuration.email.password.value | string | `""` | Value of email user password |
 | backend.configuration.email.port | int | `25` | SMTP relay port |
+| backend.configuration.email.urlApp | string | `""` | Base URL of the application used to build links in outgoing emails, scheme included. Defaults to `https://<global.fqdn>` |
 | backend.configuration.email.useSSL | string | `"False"` | Use SSL |
 | backend.configuration.email.useTLS | string | `"False"` | Use TLS |
 | backend.configuration.email.user.existingSecret.key | string | `"djangoEmailHostUser"` | Key where email user is stored |
@@ -170,7 +185,7 @@ helm install my-release --version 1.1.4 opendesk-impress/impress
 | backend.image.imagePullPolicy | string | `"IfNotPresent"` | Define an ImagePullPolicy.  Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy  "IfNotPresent" => The image is pulled only if it is not already present locally. "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved             digest, and uses that image to launch the container. "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the            kubelet attempts to start the container; otherwise, startup fails.  |
 | backend.image.registry | string | `""` | Container registry address. This setting has higher precedence than global.registry. |
 | backend.image.repository | string | `"lasuite/impress-backend"` | Container repository string. |
-| backend.image.tag | string | `"v3.3.0@sha256:64b070ba83df9af83c5e6163a1a309f6ec3ad8c5be31e1fbc8212379fccf6e6e"` | Define image tag. |
+| backend.image.tag | string | `"v5.6.1@sha256:1aa2f47b5b1c37edc8e172ed9351de81201321642348e4fd654761ffd94941d2"` | Define image tag. |
 | backend.imagePullSecrets | list | `[]` | Credentials to fetch images from private registry. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/  imagePullSecrets:   - "docker-registry"  |
 | backend.ingress.annotations | object | `{}` | Define custom ingress annotations. annotations:   nginx.ingress.kubernetes.io/rewrite-target: / |
 | backend.ingress.enabled | bool | `true` | Enable creation of Ingress. |
@@ -241,6 +256,103 @@ helm install my-release --version 1.1.4 opendesk-impress/impress
 | backend.tolerations | list | `[]` | Tolerations for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/ |
 | backend.topologySpreadConstraints | list | `[]` | Topology spread constraints rely on node labels to identify the topology domain(s) that each Node is in. Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/  topologySpreadConstraints:   - maxSkew: 1     topologyKey: failure-domain.beta.kubernetes.io/zone     whenUnsatisfiable: DoNotSchedule |
 | backend.updateStrategy.type | string | `"RollingUpdate"` | Set to Recreate if you use persistent volume that cannot be mounted by more than one pods to make sure the pods are destroyed first. |
+| backend.worker.concurrency | int | `2` | Number of child processes per worker pod. Empty lets Celery use the CPU count. |
+| backend.worker.enabled | bool | `false` | Deploy the Celery worker. Requires `configuration.celery.brokerUrl`. |
+| backend.worker.livenessProbe.enabled | bool | `true` | Enables kubernetes LivenessProbe. |
+| backend.worker.livenessProbe.failureThreshold | int | `3` | Number of failed executions until container is terminated. |
+| backend.worker.livenessProbe.initialDelaySeconds | int | `30` | Delay after container start until LivenessProbe is executed. |
+| backend.worker.livenessProbe.periodSeconds | int | `60` | Time between probe executions. |
+| backend.worker.livenessProbe.pingTimeout | int | `10` | Seconds the ping waits for the worker to answer. |
+| backend.worker.livenessProbe.successThreshold | int | `1` | Number of successful executions after failed ones until container is marked healthy. |
+| backend.worker.livenessProbe.timeoutSeconds | int | `15` | Timeout for command return. |
+| backend.worker.logLevel | string | `"INFO"` | Log level the worker starts with. |
+| backend.worker.podAnnotations | object | `{}` | Annotations added to the worker pods. |
+| backend.worker.queues | string | `""` | Queues the worker consumes. Empty consumes the default queue. |
+| backend.worker.readinessProbe.enabled | bool | `true` | Enables kubernetes ReadinessProbe. |
+| backend.worker.readinessProbe.failureThreshold | int | `3` | Number of failed executions until container is marked unready. |
+| backend.worker.readinessProbe.initialDelaySeconds | int | `15` | Delay after container start until ReadinessProbe is executed. |
+| backend.worker.readinessProbe.periodSeconds | int | `30` | Time between probe executions. |
+| backend.worker.readinessProbe.pingTimeout | int | `10` | Seconds the ping waits for the worker to answer. |
+| backend.worker.readinessProbe.successThreshold | int | `1` | Number of successful executions after failed ones until container is marked ready. |
+| backend.worker.readinessProbe.timeoutSeconds | int | `15` | Timeout for command return. |
+| backend.worker.replicaCount | int | `1` | Number of worker pods. |
+| backend.worker.resources.limits.cpu | int | `1` | The max number of CPUs to consume. |
+| backend.worker.resources.limits.memory | string | `"1Gi"` | The max number of RAM to consume. |
+| backend.worker.resources.requests.cpu | string | `"50m"` | The number of CPUs which has to be available on the scheduled node. |
+| backend.worker.resources.requests.memory | string | `"256Mi"` | The number of RAM which has to be available on the scheduled node. |
+| docspec.additionalAnnotations | object | `{}` | Additional custom annotations to add to all deployed objects. |
+| docspec.additionalLabels | object | `{}` | Additional custom labels to add to all deployed objects. |
+| docspec.affinity | object | `{}` | Affinity for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity |
+| docspec.configuration.healthPath | string | `"/health"` | HTTP path used by the container probes. |
+| docspec.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Enable container privileged escalation. |
+| docspec.containerSecurityContext.capabilities | object | `{"drop":["ALL"]}` | Security capabilities for container. |
+| docspec.containerSecurityContext.enabled | bool | `true` | Enable security context. |
+| docspec.containerSecurityContext.privileged | bool | `false` | Run container in privileged mode |
+| docspec.containerSecurityContext.readOnlyRootFilesystem | bool | `true` | Mounts the container's root filesystem as read-only. |
+| docspec.containerSecurityContext.runAsGroup | int | `1000` | Process group id. |
+| docspec.containerSecurityContext.runAsNonRoot | bool | `true` | Run container as a user. |
+| docspec.containerSecurityContext.runAsUser | int | `1000` | Process user id. The upstream image ships an Elixir/OTP release running as uid 1000. |
+| docspec.containerSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` | Disallow custom Seccomp profile by setting it to RuntimeDefault. |
+| docspec.debug | bool | `false` | Enable debugging |
+| docspec.enabled | bool | `true` | Deploy the docSpec conversion service. Required for DOCX import; without it the DOCX -> BlockNote conversion leg has nowhere to run and Word uploads fail. |
+| docspec.extraEnvVars | list | `[]` | Array with extra environment variables to add to containers.  extraEnvVars:   - name: FOO     value: "bar"  |
+| docspec.extraVolumeMounts | list | `[]` | Optionally specify an extra list of additional volumeMounts. |
+| docspec.extraVolumes | list | `[]` | Optionally specify an extra list of additional volumes. |
+| docspec.fullnameOverride | string | `""` | Provide a name to substitute for the full names of resources. |
+| docspec.image.imagePullPolicy | string | `"IfNotPresent"` | Define an ImagePullPolicy.  Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy  "IfNotPresent" => The image is pulled only if it is not already present locally. "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to             resolve the name to an image digest. "Never" => The kubelet does not try fetching the image.  |
+| docspec.image.registry | string | `"ghcr.io"` | Container registry address. This setting has higher precedence than global.registry. docSpec is published on the GitHub container registry, not on Docker Hub. |
+| docspec.image.repository | string | `"docspecio/api"` | Container repository string. |
+| docspec.image.tag | string | `"3.0.1@sha256:0b9effae9045cee5ebda80280c8bc5a075b5e368d741309f98aec0ff259a802d"` | Define image tag. |
+| docspec.imagePullSecrets | list | `[]` | Credentials to fetch images from private registry. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/  imagePullSecrets:   - "docker-registry"  |
+| docspec.lifecycleHooks | object | `{}` | Lifecycle to automate configuration before or after startup. |
+| docspec.livenessProbe.enabled | bool | `true` | Enables kubernetes LivenessProbe. |
+| docspec.livenessProbe.failureThreshold | int | `3` | Number of failed executions until container is terminated. |
+| docspec.livenessProbe.initialDelaySeconds | int | `10` | Delay after container start until LivenessProbe is executed. |
+| docspec.livenessProbe.periodSeconds | int | `10` | Time between probe executions. |
+| docspec.livenessProbe.successThreshold | int | `1` | Number of successful executions after failed ones until container is marked healthy. |
+| docspec.livenessProbe.timeoutSeconds | int | `1` | Timeout for command return. |
+| docspec.nameOverride | string | `""` | String to partially override release name. |
+| docspec.nodeSelector | object | `{}` | Node labels for pod assignment. Ref: https://kubernetes.io/docs/user-guide/node-selection/ |
+| docspec.pdb | object | `{"enabled":true,"maxUnavailable":null,"minAvailable":1}` | Pod disruption budget Ref.: https://kubernetes.io/docs/tasks/run-application/configure-pdb/ |
+| docspec.pdb.enabled | bool | `true` | Whether PodDisruptionBudget for the docSpec should be enabled |
+| docspec.pdb.maxUnavailable | string | `nil` | How many pods can be unavailable at any given time |
+| docspec.pdb.minAvailable | int | `1` | How many pods need to be available at any given time |
+| docspec.podAnnotations | object | `{}` | Pod Annotations. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/ |
+| docspec.podLabels | object | `{}` | Pod Labels. Ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/ |
+| docspec.podSecurityContext.enabled | bool | `true` | Enable security context. |
+| docspec.podSecurityContext.fsGroup | int | `1000` | If specified, all processes of the container are also part of the supplementary group. |
+| docspec.podSecurityContext.fsGroupChangePolicy | string | `"Always"` | Change ownership and permission of the volume before being exposed inside a Pod. |
+| docspec.readinessProbe.enabled | bool | `true` | Enables kubernetes ReadinessProbe. |
+| docspec.readinessProbe.failureThreshold | int | `10` | Number of failed executions until container is terminated. |
+| docspec.readinessProbe.initialDelaySeconds | int | `15` | Delay after container start until ReadinessProbe is executed. |
+| docspec.readinessProbe.periodSeconds | int | `20` | Time between probe executions. |
+| docspec.readinessProbe.successThreshold | int | `1` | Number of successful executions after failed ones until container is marked healthy. |
+| docspec.readinessProbe.timeoutSeconds | int | `5` | Timeout for command return. |
+| docspec.replicaCount | int | `1` | Set the amount of replicas of deployment. |
+| docspec.resources.limits.cpu | int | `1` | The max number of CPUs to consume. |
+| docspec.resources.limits.memory | string | `"1Gi"` | The max number of RAM to consume. |
+| docspec.resources.requests.cpu | string | `"100m"` | The number of CPUs which has to be available on the scheduled node. |
+| docspec.resources.requests.memory | string | `"256Mi"` | The number of RAM which has to be available on the scheduled node. |
+| docspec.service.annotations | object | `{}` | Additional custom annotations. |
+| docspec.service.enabled | bool | `true` | Enable kubernetes service creation. |
+| docspec.service.ports.http.containerPort | int | `4000` | Internal port. |
+| docspec.service.ports.http.port | int | `80` | Accessible port. |
+| docspec.service.ports.http.protocol | string | `"TCP"` | Service protocol. |
+| docspec.service.type | string | `"ClusterIP"` | Choose the kind of Service, one of "ClusterIP", "NodePort" or "LoadBalancer". docSpec is only ever called by the backend from inside the cluster. |
+| docspec.serviceAccount.annotations | object | `{}` | Additional custom annotations for the ServiceAccount. |
+| docspec.serviceAccount.automountServiceAccountToken | bool | `false` | Allows auto mount of ServiceAccountToken on the serviceAccount created. Can be set to false if pods using this serviceAccount do not need to use K8s API. |
+| docspec.serviceAccount.create | bool | `true` | Enable creation of ServiceAccount for pod. |
+| docspec.serviceAccount.labels | object | `{}` | Additional custom labels for the ServiceAccount. |
+| docspec.startupProbe.enabled | bool | `true` | Enables kubernetes StartupProbe. |
+| docspec.startupProbe.failureThreshold | int | `10` | Number of failed executions until container is terminated. |
+| docspec.startupProbe.initialDelaySeconds | int | `15` | Delay after container start until StartupProbe is executed. |
+| docspec.startupProbe.periodSeconds | int | `20` | Time between probe executions. |
+| docspec.startupProbe.successThreshold | int | `1` | Number of successful executions after failed ones until container is marked healthy. |
+| docspec.startupProbe.timeoutSeconds | int | `5` | Timeout for command return. |
+| docspec.terminationGracePeriodSeconds | string | `""` | In seconds, time the given to the pod needs to terminate gracefully. Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod/#termination-of-pods |
+| docspec.tolerations | list | `[]` | Tolerations for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/ |
+| docspec.topologySpreadConstraints | list | `[]` | Topology spread constraints rely on node labels to identify the topology domain(s) that each Node is in. Ref: https://kubernetes.io/docs/concepts/workloads/pods/pod-topology-spread-constraints/ |
+| docspec.updateStrategy.type | string | `"RollingUpdate"` | Set to Recreate if you use persistent volume that cannot be mounted by more than one pods to make sure the pods are destroyed first. |
 | frontend.additionalAnnotations | object | `{}` | Additional custom annotations to add to all deployed objects. |
 | frontend.additionalLabels | object | `{}` | Additional custom labels to add to all deployed objects. |
 | frontend.affinity | object | `{}` | Affinity for pod assignment. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity Note: podAffinityPreset, podAntiAffinityPreset, and nodeAffinityPreset will be ignored when it's set. |
@@ -266,7 +378,7 @@ helm install my-release --version 1.1.4 opendesk-impress/impress
 | frontend.image.imagePullPolicy | string | `"IfNotPresent"` | Define an ImagePullPolicy.  Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy  "IfNotPresent" => The image is pulled only if it is not already present locally. "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved             digest, and uses that image to launch the container. "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the            kubelet attempts to start the container; otherwise, startup fails.  |
 | frontend.image.registry | string | `""` | Container registry address. This setting has higher precedence than global.registry. |
 | frontend.image.repository | string | `"lasuite/impress-frontend"` | Container repository string. |
-| frontend.image.tag | string | `"v3.3.0@sha256:bb885099bc867ea0a3febdf293542abb6d34474c53150313e1327f6a4c15060f"` | Define image tag. |
+| frontend.image.tag | string | `"v5.6.1@sha256:868c38636414915889c2423a1796c37254a9387af55bef240f5be0d7c880a279"` | Define image tag. |
 | frontend.imagePullSecrets | list | `[]` | Credentials to fetch images from private registry. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/  imagePullSecrets:   - "docker-registry"  |
 | frontend.ingress.annotations | object | `{}` | Define custom ingress annotations. annotations:   nginx.ingress.kubernetes.io/rewrite-target: / |
 | frontend.ingress.enabled | bool | `true` | Enable creation of Ingress. |
@@ -353,7 +465,7 @@ helm install my-release --version 1.1.4 opendesk-impress/impress
 | y-provider.image.imagePullPolicy | string | `"IfNotPresent"` | Define an ImagePullPolicy.  Ref.: https://kubernetes.io/docs/concepts/containers/images/#image-pull-policy  "IfNotPresent" => The image is pulled only if it is not already present locally. "Always" => Every time the kubelet launches a container, the kubelet queries the container image registry to             resolve the name to an image digest. If the kubelet has a container image with that exact digest cached             locally, the kubelet uses its cached image; otherwise, the kubelet pulls the image with the resolved             digest, and uses that image to launch the container. "Never" => The kubelet does not try fetching the image. If the image is somehow already present locally, the            kubelet attempts to start the container; otherwise, startup fails.  |
 | y-provider.image.registry | string | `"docker.io"` | Container registry address. This setting has higher precedence than global.registry. |
 | y-provider.image.repository | string | `"lasuite/impress-y-provider"` | Container repository string. |
-| y-provider.image.tag | string | `"v2.4.0@sha256:329d47f5cda80941a7f0812969c3194ba68da3e7e1ef38e3d08c266fc97555c1"` | Define image tag. |
+| y-provider.image.tag | string | `"v5.6.1@sha256:901a5963102923b0d26ca6e5a30e1bc6d4ffc52aa67bc23dc692f5e6de26e6a2"` | Define image tag. |
 | y-provider.imagePullSecrets | list | `[]` | Credentials to fetch images from private registry. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/  imagePullSecrets:   - "docker-registry"  |
 | y-provider.ingressCollaborationApi.annotations | object | `{}` | Define custom ingress annotations. annotations:   nginx.ingress.kubernetes.io/rewrite-target: / |
 | y-provider.ingressCollaborationApi.enabled | bool | `true` | Enable creation of Ingress. |

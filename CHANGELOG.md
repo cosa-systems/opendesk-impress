@@ -1,3 +1,20 @@
+# [1.2.0](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.1.4...v1.2.0) (2026-09-22)
+
+
+### Bug Fixes
+
+* Ensure global.fqdn is set ([5566e0c](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/5566e0c94657b6d4d120f8dfd6052e6f13cdaf73))
+* Set `readOnlyRootFilesystem` for docspec ([9a30e95](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/9a30e9536204c903ea957a944153501530435e62))
+* Set missing pipe ([1c82bd5](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/1c82bd5cbbb125d38562f625b16825d3aa0ca407))
+* **worker:** Complete probes ([488b11a](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/488b11a22dfa8557ae6367ff9d04f12c4ff0718b))
+
+
+### Features
+
+* **backend:** Deploy a Celery worker ([d9af5ab](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/d9af5ab127472d03c51ced48131b0b5bfb60b8a3))
+* **chart:** Update to Docs v5.4.1 and deploy docSpec ([7a1f536](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/7a1f53620e1dafb70f81cdf43d0d81b9ce72e6e2))
+* Upgrade from v5.4.1 to v5.6.1 ([2b41369](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/2b4136936c7bc38393d65890938a5ad8dbae3be7))
+
 ## [1.1.4](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.1.3...v1.1.4) (2026-09-22)
 
 
