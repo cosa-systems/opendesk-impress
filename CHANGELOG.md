@@ -1,3 +1,10 @@
+## [1.1.4](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.1.3...v1.1.4) (2026-09-22)
+
+
+### Bug Fixes
+
+* **ci:** Migrate to new pipeline template ([80795c2](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/80795c2d1b7d93dfdf19e4019f45561cad3a92df))
+
 ## [1.1.3](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.1.2...v1.1.3) (2026-06-24)
 
 
