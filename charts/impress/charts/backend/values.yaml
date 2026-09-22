@@ -552,6 +552,8 @@ configuration:
     logoImage: ""
     # -- From address
     from: ""
+    # -- Base URL of the application used to build links in outgoing emails, scheme included. Defaults to `https://<global.fqdn>`
+    urlApp: ""
     # -- SMTP relay server
     host: "postfix"
     # -- SMTP relay port

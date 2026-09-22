@@ -111,11 +111,11 @@ spec:
                   name: {{ .Values.configuration.redisUrl.existingSecret.name | default (include "common.names.fullname" .) | quote }}
                   key: {{ .Values.configuration.redisUrl.existingSecret.key | default "redisUrl" | quote }}
             - name: "DJANGO_CSRF_TRUSTED_ORIGINS"
-              value: {{ .Values.configuration.django.csrfTrustedOrigins | default (printf "https://%s" .Values.global.fqdn) | quote }}
+              value: {{ .Values.configuration.django.csrfTrustedOrigins | default (printf "https://%s" (include "impress.backend.fqdn" .)) | quote }}
             - name: "DJANGO_SITE_DOMAIN"
-              value: {{ .Values.configuration.django.siteDomain | default .Values.global.fqdn | quote }}
+              value: {{ .Values.configuration.django.siteDomain | default (include "impress.backend.fqdn" .) | quote }}
             - name: "DJANGO_SITE_NAME"
-              value: {{ .Values.configuration.django.siteName | default .Values.global.fqdn | quote }}
+              value: {{ .Values.configuration.django.siteName | default (include "impress.backend.fqdn" .) | quote }}
             - name: "DJANGO_CONFIGURATION"
               value: {{ .Values.configuration.django.configuration | default "Production" | quote }}
             - name: "DJANGO_ALLOWED_HOSTS"
@@ -143,6 +143,8 @@ spec:
               value: {{ .Values.configuration.email.logoImage | quote }}
             - name: "DJANGO_EMAIL_FROM"
               value: {{ .Values.configuration.email.from | quote }}
+            - name: "DJANGO_EMAIL_URL_APP"
+              value: {{ .Values.configuration.email.urlApp | default (printf "https://%s" (include "impress.backend.fqdn" .)) | quote }}
             - name: "DJANGO_EMAIL_HOST"
               value: {{ .Values.configuration.email.host | quote }}
             - name: "DJANGO_EMAIL_PORT"
@@ -250,7 +252,7 @@ spec:
                   name: {{ .Values.global.yProviderApiKey.existingSecret.name | default (include "common.names.fullname" .) | quote }}
                   key: {{ .Values.global.yProviderApiKey.existingSecret.key | default "yProviderApiKey" | quote }}
             - name: "Y_PROVIDER_API_BASE_URL"
-              value: {{ .Values.configuration.yProvider.apiBaseUrl | default (printf "https://%s/api/" .Values.global.fqdn) | quote }}
+              value: {{ .Values.configuration.yProvider.apiBaseUrl | default (printf "https://%s/api/" (include "impress.backend.fqdn" .)) | quote }}
             - name: "COLLABORATION_API_URL"
               value: {{ .Values.configuration.collaboration.apiUrl | quote }}
             {{- if or .Values.configuration.docSpec.apiUrl .Values.configuration.docSpec.enabled }}

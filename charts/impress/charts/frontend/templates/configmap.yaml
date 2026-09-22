@@ -19,7 +19,7 @@ data:
   default.conf: |
     server {
         ### START: taken from https://github.com/suitenumerique/docs/blob/main/src/frontend/apps/impress/conf/default.conf ###
-        server_name {{ .Values.global.fqdn }};
+        server_name {{ include "impress.frontend.fqdn" . }};
         root /app;
         listen 8080;
         error_page 404 /404.html;
@@ -93,11 +93,11 @@ data:
 
             proxy_pass_request_body off;
             proxy_set_header Content-Length "";
-            proxy_set_header Host {{ .Values.global.fqdn }};
+            proxy_set_header Host {{ include "impress.frontend.fqdn" . }};
             proxy_set_header X-Original-URL $request_uri;
             proxy_set_header X-Forwarded-Proto "https";
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Host {{ .Values.global.fqdn }};
+            proxy_set_header X-Forwarded-Host {{ include "impress.frontend.fqdn" . }};
 
             # Forward auth headers back
             proxy_pass_header Authorization;

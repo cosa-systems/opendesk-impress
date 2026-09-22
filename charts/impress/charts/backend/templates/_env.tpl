@@ -62,11 +62,11 @@ same configuration. Emitted at the indentation of a container's "env:" list, so 
                 .Values.configuration.celery.broker.database | quote }}
             {{- end }}
             - name: "DJANGO_CSRF_TRUSTED_ORIGINS"
-              value: {{ .Values.configuration.django.csrfTrustedOrigins | default (printf "https://%s" .Values.global.fqdn) | quote }}
+              value: {{ .Values.configuration.django.csrfTrustedOrigins | default (printf "https://%s" (include "impress.backend.fqdn" .)) | quote }}
             - name: "DJANGO_SITE_DOMAIN"
-              value: {{ .Values.configuration.django.siteDomain | default .Values.global.fqdn | quote }}
+              value: {{ .Values.configuration.django.siteDomain | default (include "impress.backend.fqdn" .) | quote }}
             - name: "DJANGO_SITE_NAME"
-              value: {{ .Values.configuration.django.siteName | default .Values.global.fqdn | quote }}
+              value: {{ .Values.configuration.django.siteName | default (include "impress.backend.fqdn" .) | quote }}
             - name: "DJANGO_CONFIGURATION"
               value: {{ .Values.configuration.django.configuration | default "Production" | quote }}
             - name: "DJANGO_ALLOWED_HOSTS"
@@ -89,6 +89,8 @@ same configuration. Emitted at the indentation of a container's "env:" list, so 
               value: {{ .Values.configuration.email.logoImage | quote }}
             - name: "DJANGO_EMAIL_FROM"
               value: {{ .Values.configuration.email.from | quote }}
+            - name: "DJANGO_EMAIL_URL_APP"
+              value: {{ .Values.configuration.email.urlApp | default (printf "https://%s" (include "impress.backend.fqdn" .)) | quote }}
             - name: "DJANGO_EMAIL_HOST"
               value: {{ .Values.configuration.email.host | quote }}
             - name: "DJANGO_EMAIL_PORT"
@@ -170,7 +172,7 @@ same configuration. Emitted at the indentation of a container's "env:" list, so 
             - name: "OIDC_RP_SCOPES"
               value: {{ .Values.configuration.oidc.rpScopes | quote }}
             - name: "LOGIN_REDIRECT_URL"
-              value: {{ .Values.configuration.oidc.loginRedirectUrl | default (printf "https://%s/" .Values.global.fqdn) quote }}
+              value: {{ .Values.configuration.oidc.loginRedirectUrl | default (printf "https://%s/" (include "impress.backend.fqdn" .)) quote }}
             - name: "LOGIN_REDIRECT_URL_FAILURE"
               value: {{ .Values.configuration.oidc.loginRedirectUrlFailure | quote }}
             - name: "LOGOUT_REDIRECT_URL"
@@ -202,7 +204,7 @@ same configuration. Emitted at the indentation of a container's "env:" list, so 
                   name: {{ .Values.global.yProviderApiKey.existingSecret.name | default (include "common.names.fullname" .) | quote }}
                   key: {{ .Values.global.yProviderApiKey.existingSecret.key | default "yProviderApiKey" | quote }}
             - name: "Y_PROVIDER_API_BASE_URL"
-              value: {{ .Values.configuration.yProvider.apiBaseUrl | default (printf "https://%s/api/" .Values.global.fqdn) | quote }}
+              value: {{ .Values.configuration.yProvider.apiBaseUrl | default (printf "https://%s/api/" (include "impress.backend.fqdn" .)) | quote }}
             - name: "COLLABORATION_API_URL"
               value: {{ .Values.configuration.collaboration.apiUrl | quote }}
             {{- if or .Values.configuration.docSpec.apiUrl .Values.configuration.docSpec.enabled }}

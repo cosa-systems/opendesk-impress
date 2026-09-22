@@ -12,7 +12,8 @@ global:
       # -- Key where collaboration server secret is stored
       key: "collaborationServerSecret"
 
-  # -- fully qualified domain name of this impress instance
+  # -- fully qualified domain name of this impress instance. Required: every URL the chart builds
+  # derives from it, and rendering fails with an explicit message when it is left empty
   fqdn: ""
 
   # -- Define an ImagePullPolicy.
