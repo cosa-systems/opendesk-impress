@@ -13,13 +13,13 @@ To install the chart with the release name `my-release`, you have two options:
 ### Install via Repository
 ```console
 helm repo add opendesk-impress https://gitlab.opencode.de/api/v4/projects/5478/packages/helm/stable
-helm install my-release --version 1.2.0 opendesk-impress/impress
+helm install my-release --version 1.3.0 opendesk-impress/impress
 ```
 
 ### Install via OCI Registry
 ```console
 helm repo add opendesk-impress oci://registry.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress
-helm install my-release --version 1.2.0 opendesk-impress/impress
+helm install my-release --version 1.3.0 opendesk-impress/impress
 ```
 
 ## Requirements
@@ -164,9 +164,17 @@ helm install my-release --version 1.2.0 opendesk-impress/impress
 | backend.configuration.oidc.shortnameField | string | `"first_name"` | Field to short name |
 | backend.configuration.oidc.storeIDToken | string | `"True"` | Whether to store ID token |
 | backend.configuration.oidc.useNonce | string | `"True"` | Use Nonce |
-| backend.configuration.redisUrl.existingSecret.key | string | `"redisUrl"` | Key where Redis URL is stored |
-| backend.configuration.redisUrl.existingSecret.name | string | `nil` | Name of existing secret containing Redis URL, overrules provided value |
-| backend.configuration.redisUrl.value | string | `""` | Value of Redis URL, e.g. redis://user:password@redis:6379/1 |
+| backend.configuration.redis.database | string | `"1"` | Database of Redis. |
+| backend.configuration.redis.host | string | `""` | Host of Redis. Required unless `redisUrl` is set. |
+| backend.configuration.redis.password.existingSecret.key | string | `"redisPassword"` | Key where the Redis password is stored |
+| backend.configuration.redis.password.existingSecret.name | string | `nil` | Name of existing secret containing the Redis password, overrules provided value |
+| backend.configuration.redis.password.value | string | `""` | Value of the Redis password. Stored in this chart's secret and joined into the Redis URL inside the container, so that neither values nor the pod spec carry it. Percent-encode it if it contains characters that are unsafe in a URL. |
+| backend.configuration.redis.port | int | `6379` | Port of Redis. |
+| backend.configuration.redis.tls | bool | `false` | Connect with TLS (rediss://). |
+| backend.configuration.redis.username | string | `""` | Username of Redis. |
+| backend.configuration.redisUrl.existingSecret.key | string | `"redisUrl"` | Key where the full Redis URL is stored |
+| backend.configuration.redisUrl.existingSecret.name | string | `nil` | Name of existing secret containing the full Redis URL, overrules provided value |
+| backend.configuration.redisUrl.value | string | `""` | Value of the full Redis URL, e.g. redis://user:password@redis:6379/1. Overrules `redis`. Carries the password inside the URL, so prefer `redis`. |
 | backend.configuration.trashbinCutoffDays | string | `"30"` | Days after items in trash will be permamently deleted |
 | backend.configuration.yProvider.apiBaseUrl | string | `""` | API Base URL |
 | backend.containerSecurityContext.allowPrivilegeEscalation | bool | `false` | Enable container privileged escalation. |

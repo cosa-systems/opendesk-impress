@@ -1,3 +1,15 @@
+# [1.3.0](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.2.0...v1.3.0) (2026-09-23)
+
+
+### Bug Fixes
+
+* **backend:** Read the database password from its existingSecret ([99ba72c](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/99ba72c8ebd518af565f809868d83e0ae8fa51bd))
+
+
+### Features
+
+* **backend:** Configure Redis from its parts ([89bd470](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/89bd47053b2579a2fc82fd0ba5fcbfba3259dad7))
+
 # [1.2.0](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.1.4...v1.2.0) (2026-09-22)
 
 
