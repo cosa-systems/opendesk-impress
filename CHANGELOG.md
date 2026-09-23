@@ -1,3 +1,10 @@
+## [1.3.1](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.3.0...v1.3.1) (2026-09-23)
+
+
+### Bug Fixes
+
+* **ci:** Force rebuild due to missing signature ([c8aa2d7](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/commit/c8aa2d74c6b4befd0d66795bee604b7f26606ad9))
+
 # [1.3.0](https://gitlab.opencode.de/bmi/opendesk/components/platform-development/charts/opendesk-impress/compare/v1.2.0...v1.3.0) (2026-09-23)
 
 
