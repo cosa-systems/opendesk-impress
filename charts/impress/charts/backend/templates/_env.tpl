@@ -28,8 +28,8 @@ same configuration. Emitted at the indentation of a container's "env:" list, so 
             - name: "DB_PASSWORD"
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.configuration.database.password.name | default (include "common.names.fullname" .) | quote }}
-                  key: {{ .Values.configuration.database.password.key | default "dbPassword" | quote }}
+                  name: {{ .Values.configuration.database.password.existingSecret.name | default (include "common.names.fullname" .) | quote }}
+                  key: {{ .Values.configuration.database.password.existingSecret.key | default "dbPassword" | quote }}
             - name: "DB_HOST"
               value: {{ .Values.configuration.database.host | quote }}
             - name: "DB_PORT"
