@@ -585,13 +585,36 @@ configuration:
   mediaBaseUrl: ""
   # -- Max size of images in bytes
   documentImageMaxSize: ~
+  # Redis the cache and the sessions are kept in.
+  redis:
+    # -- Host of Redis. Required unless `redisUrl` is set.
+    host: ""
+    # -- Port of Redis.
+    port: 6379
+    # -- Database of Redis.
+    database: "1"
+    # -- Username of Redis.
+    username: ""
+    # -- Connect with TLS (rediss://).
+    tls: false
+    password:
+      # -- Value of the Redis password. Stored in this chart's secret and joined into the Redis URL
+      # inside the container, so that neither values nor the pod spec carry it. Percent-encode it
+      # if it contains characters that are unsafe in a URL.
+      value: ""
+      existingSecret:
+        # -- Name of existing secret containing the Redis password, overrules provided value
+        name: ~
+        # -- Key where the Redis password is stored
+        key: "redisPassword"
   redisUrl:
-    # -- Value of Redis URL, e.g. redis://user:password@redis:6379/1
+    # -- Value of the full Redis URL, e.g. redis://user:password@redis:6379/1. Overrules
+    # `redis`. Carries the password inside the URL, so prefer `redis`.
     value: ""
     existingSecret:
-      # -- Name of existing secret containing Redis URL, overrules provided value
+      # -- Name of existing secret containing the full Redis URL, overrules provided value
       name: ~
-      # -- Key where Redis URL is stored
+      # -- Key where the full Redis URL is stored
       key: "redisUrl"
   celery:
     # Broker the background tasks are queued in. Left unconfigured, the backend falls back to

@@ -105,11 +105,7 @@ spec:
               value: {{ .Values.configuration.database.host | quote }}
             - name: "DB_PORT"
               value: {{ .Values.configuration.database.port | quote }}
-            - name: "REDIS_URL"
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.configuration.redisUrl.existingSecret.name | default (include "common.names.fullname" .) | quote }}
-                  key: {{ .Values.configuration.redisUrl.existingSecret.key | default "redisUrl" | quote }}
+            {{- include "impress.backend.env.redis" . }}
             - name: "DJANGO_CSRF_TRUSTED_ORIGINS"
               value: {{ .Values.configuration.django.csrfTrustedOrigins | default (printf "https://%s" (include "impress.backend.fqdn" .)) | quote }}
             - name: "DJANGO_SITE_DOMAIN"

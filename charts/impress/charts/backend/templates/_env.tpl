@@ -34,11 +34,7 @@ same configuration. Emitted at the indentation of a container's "env:" list, so 
               value: {{ .Values.configuration.database.host | quote }}
             - name: "DB_PORT"
               value: {{ .Values.configuration.database.port | quote }}
-            - name: "REDIS_URL"
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.configuration.redisUrl.existingSecret.name | default (include "common.names.fullname" .) | quote }}
-                  key: {{ .Values.configuration.redisUrl.existingSecret.key | default "redisUrl" | quote }}
+            {{- include "impress.backend.env.redis" . }}
             {{- if or .Values.configuration.celery.broker.url.value .Values.configuration.celery.broker.url.existingSecret.name }}
             - name: "DJANGO_CELERY_BROKER_URL"
               valueFrom:
@@ -242,4 +238,33 @@ unchanged, so "$(VAR)" would reach Celery verbatim.
 - "sh"
 - "-c"
 - "celery --app impress.celery_app inspect ping --destination celery@$HOSTNAME --timeout {{ . }}"
+{{- end -}}
+
+{{/*
+Redis connection of the backend containers, shared with the init Job. Emitted at the indentation
+of a container's "env:" list like "impress.backend.env".
+*/}}
+{{- define "impress.backend.env.redis" -}}
+            {{- if or .Values.configuration.redisUrl.value .Values.configuration.redisUrl.existingSecret.name }}
+            - name: "REDIS_URL"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.configuration.redisUrl.existingSecret.name | default (include "common.names.fullname" .) | quote }}
+                  key: {{ .Values.configuration.redisUrl.existingSecret.key | default "redisUrl" | quote }}
+            {{- else if .Values.configuration.redis.host }}
+            - name: "REDIS_PASSWORD"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.configuration.redis.password.existingSecret.name | default (include "common.names.fullname" .) | quote }}
+                  key: {{ .Values.configuration.redis.password.existingSecret.key | default "redisPassword" | quote }}
+            # The password stays in the secret: kubelet expands "$(VAR)" in an environment value
+            # from the variables declared before it, so the URL is only joined in the container.
+            - name: "REDIS_URL"
+              value: {{ printf "%s://%s:$(REDIS_PASSWORD)@%s:%v/%v"
+                (ternary "rediss" "redis" .Values.configuration.redis.tls)
+                (.Values.configuration.redis.username | urlquery | replace "+" "%20")
+                .Values.configuration.redis.host
+                .Values.configuration.redis.port
+                .Values.configuration.redis.database | quote }}
+            {{- end }}
 {{- end -}}
